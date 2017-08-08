@@ -1,0 +1,39 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+
+<dom-module id="simple-grid">
+
+  <template>
+    <vaadin-grid data-provider="[[dataProvider]]" size=[[size]]>
+      <slot name="columns"></slot>
+    </vaadin-grid>
+  </template>
+
+  <script>
+      class SimpleGrid extends Polymer.Element {
+
+        static get is() {
+          return 'simple-grid';
+        }
+
+        initDataProvider() {
+          this.callbacks = {};
+          this.dataProvider = (params, callback) => {
+        	  console.log(callback);
+            this.dispatchEvent(new CustomEvent('page-request', {detail:{page: params.page, pageSize: params.pageSize}}));
+            this.callbacks[params.page] = callback;
+          };
+        }
+
+        loadPage(pageInfo) {
+        	console.log("page info");
+        	console.log(pageInfo);
+          if (pageInfo) {
+            this.callbacks[pageInfo.page](pageInfo.items);
+            this.callbacks[pageInfo.page] = null;
+          }
+        }
+      }
+      window.customElements.define(SimpleGrid.is, SimpleGrid);
+  </script>
+</dom-module>
