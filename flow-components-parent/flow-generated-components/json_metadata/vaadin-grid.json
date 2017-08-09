@@ -1,0 +1,316 @@
+{
+  "name": "vaadin-grid",
+  "tag": "vaadin-grid",
+  "baseUrl": "vaadin-grid/vaadin-grid.html",
+  "properties": [
+    {
+      "name": "keyEventTarget",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": "The EventTarget that will be firing relevant KeyboardEvents. Set it to\n`null` to disable the listeners."
+    },
+    {
+      "name": "stopKeyboardEventPropagation",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "If true, this property will cause the implementing element to\nautomatically stop propagation on any handled KeyboardEvents.\n         "
+    },
+    {
+      "name": "keyBindings",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": "To be used to express what combination of keys  will trigger the relative\ncallback. e.g. `keyBindings: { 'esc': '_onEscPressed'}`"
+    },
+    {
+      "name": "activeItem",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": "The item user has last interacted with. Turns to `null` after user deactivates\nthe item by re-interacting with the currently active item.\n       "
+    },
+    {
+      "name": "expandedItems",
+      "type": [
+        "ARRAY"
+      ],
+      "objectType": [],
+      "description": "An array containing references to expanded items.\n       "
+    },
+    {
+      "name": "pageSize",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": "Number of items fetched at a time from the dataprovider.\n       "
+    },
+    {
+      "name": "dataProvider",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": "Function that provides items lazily. Receives arguments `params`, `callback`\n\n`params.page` Requested page index\n\n`params.pageSize` Current page size\n\n`params.filters` Currently applied filters\n\n`params.sortOrders` Currently applied sorting orders\n\n       "
+    },
+    {
+      "name": "items",
+      "type": [
+        "ARRAY"
+      ],
+      "objectType": [],
+      "description": "An array containing the items which will be stamped to the column template\ninstances.\n       "
+    },
+    {
+      "name": "selectedItems",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": "An array that contains the selected items.\n       "
+    },
+    {
+      "name": "multiSort",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When `true`, all `<vaadin-grid-sorter>` are applied for sorting.\n       "
+    },
+    {
+      "name": "columnReorderingAllowed",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "Set to true to allow column reordering.\n       "
+    },
+    {
+      "name": "interacting",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "navigating",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "size",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": "Estimated size of the grid data (number of items).\nWhen using function data providers, it always needs to be set manually.\n       "
+    }
+  ],
+  "methods": [
+    {
+      "name": "addOwnKeyBinding",
+      "description": "Can be used to imperatively add a key binding to the implementing\nelement. This is the imperative equivalent of declaring a keybinding\nin the `keyBindings` prototype property.",
+      "parameters": [
+        {
+          "name": "eventString",
+          "type": [
+            "STRING"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        },
+        {
+          "name": "handlerName",
+          "type": [
+            "STRING"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "removeOwnKeyBindings",
+      "description": "When called, will remove all imperatively-added key bindings.\n       ",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "keyboardEventMatchesKeys",
+      "description": "Returns true if a keyboard event matches `eventString`.",
+      "parameters": [
+        {
+          "name": "event",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        },
+        {
+          "name": "eventString",
+          "type": [
+            "STRING"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "BOOLEAN"
+    },
+    {
+      "name": "notifyResize",
+      "description": "Can be called to manually notify a resizable and its descendant\nresizables of a resize change.\n     ",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "assignParentResizable",
+      "description": "Used to assign the closest resizable ancestor to this resizable\nif the ancestor detects a request for notifications.\n     ",
+      "parameters": [
+        {
+          "name": "parentResizable",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "stopResizeNotificationsFor",
+      "description": "Used to remove a resizable descendant from the list of descendants\nthat should be notified of a resize change.\n     ",
+      "parameters": [
+        {
+          "name": "target",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "resizerShouldNotify",
+      "description": "This method can be overridden to filter nested elements that should or\nshould not be notified by the current element. Return true if an element\nshould be notified, or false if it should not be notified.",
+      "parameters": [
+        {
+          "name": "element",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "A candidate descendant element that\nimplements `IronResizableBehavior`."
+        }
+      ],
+      "returns": "BOOLEAN"
+    },
+    {
+      "name": "expandItem",
+      "description": "Expand the details row of a given item.\n     ",
+      "parameters": [
+        {
+          "name": "item",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "collapseItem",
+      "description": "Collapse the details row of a given item.\n     ",
+      "parameters": [
+        {
+          "name": "item",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "clearCache",
+      "description": "Clears the cached pages and reloads data from dataprovider when needed.\n     ",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "selectItem",
+      "description": "Selects the given item.",
+      "parameters": [
+        {
+          "name": "item",
+          "type": [
+            "NUMBER",
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "The item index or the item object"
+        }
+      ],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "deselectItem",
+      "description": "Deselects the given item if it is already selected.",
+      "parameters": [
+        {
+          "name": "item",
+          "type": [
+            "NUMBER",
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "The item index or the item object"
+        }
+      ],
+      "returns": "UNDEFINED"
+    }
+  ],
+  "events": [
+    {
+      "name": "active-item-changed",
+      "description": "Fired when the `activeItem` property changes.",
+      "properties": []
+    },
+    {
+      "name": "data-provider-changed",
+      "description": "Fired when the `dataProvider` property changes.",
+      "properties": []
+    },
+    {
+      "name": "selected-items-changed",
+      "description": "Fired when the `selectedItems` property changes.",
+      "properties": []
+    }
+  ],
+  "slots": [
+    "footerFocusTrap",
+    ""
+  ],
+  "behaviors": [],
+  "mixins": [],
+  "description": "`vaadin-grid` is a free, high quality data grid / data table Polymer element, part of the Vaadin Core Elements.\n\n### Quick Start\n\n - Use the <a href=\"#vaadin-grid-column\">`<vaadin-grid-column>`</a> element to configure the grid columns.\n\n - Then assign an array to the <a href=\"#vaadin-grid:property-items\">`items`</a> property to visualize your data.\n\n - In addition, there's helper elements such as\n<a href=\"#vaadin-grid-column-group\">`<vaadin-grid-column-group>`</a>,\n<a href=\"#vaadin-grid-filter\">`<vaadin-grid-filter>`</a>,\n<a href=\"#vaadin-grid-sorter\">`<vaadin-grid-sorter>`</a> and\n<a href=\"#vaadin-grid-selection-column\">`<vaadin-grid-selection-column>`</a>\nthat can be used to customize the grid.\n__Note that the helper elements must be explicitly imported.__\nIf you want to import everything at once you can use the `all-imports.html` bundle.\n\n - A column template can be decorated with one the following class names to specify its purpose\n  - \"header\": Marks a header template\n  - \"footer\": Marks a footer template\n  - \"row-details\": Marks a row details template\n\n - The following built-in template variables can be bound to inside the column templates\n  - \"index\": Number representing the row index\n  - \"item\" and it's sub-properties: Data object (provided by a data provider / items array)\n  - \"selected\": True if the item is selected (can be two-way bound)\n  - \"expanded\": True if the item is expanded for row details (can be two-way bound)\n\n#### Example:\n\n    <vaadin-grid items='[{\"name\": \"John\", \"surname\": \"Lennon\", \"role\": \"singer\"}, {\"name\": \"Ringo\", \"surname\": \"Starr\", \"role\": \"drums\"}]'>\n      <vaadin-grid-column>\n        <template class=\"header\">Name</template>\n        <template>[[item.name]]</template>\n      </vaadin-grid-column>\n      <vaadin-grid-column>\n        <template class=\"header\">Surname</template>\n        <template>[[item.surname]]</template>\n      </vaadin-grid-column>\n      <vaadin-grid-column>\n        <template class=\"header\">Role</template>\n        <template>[[item.role]]</template>\n      </vaadin-grid-column>\n    </vaadin-grid>\n\n### Lazy Loading with Function Data Provider\n\nIn addition to assigning an array to the items property, you can alternatively\nprovide the vaadin-grid data through the `dataProvider` function property.\nThe vaadin-grid element calls this function lazily, only when it needs more data\nto be displayed.\n\nSee the <a href=\"#vaadin-grid:property-dataProvider\">`dataProvider`</a> in\nthe API reference below for the detailed data provider arguments description,\nand the “Assigning Data” page in the demos</a>.\n\n__Note that when using function data providers, `size` always needs to be\nset manually.__\n\n    grid.size = 200; // The total number of items\n    grid.dataProvider = function(params, callback) {\n      var url = 'https://api.example/data' +\n          '?page=' + params.page +        // the requested page index\n          '&per_page=' + params.pageSize; // number of items on the page\n\n      var xhr = new XMLHttpRequest();\n      xhr.onload = function() {\n        var response = JSON.parse(xhr.responseText);\n        callback(response.employees);\n      };\n      xhr.open('GET', url, true);\n      xhr.send();\n    };\n\n### Styling\n\nThe following custom properties and mixins are available for styling:\n\nCustom property | Description | Default\n----------------|-------------|----------\n`--vaadin-grid-cell` | Mixin applied to all cells | `{}`\n`--vaadin-grid-header-cell` | Mixin applied to header cells | `{}`\n`--vaadin-grid-footer-cell` | Mixin applied to footer cells | `{}`\n`--vaadin-grid-body-cell` | Mixin applied to body cells | `{}`\n`--vaadin-grid-body-row-odd-cell` | Mixin applied to body cells on odd rows | `{}`\n`--vaadin-grid-cell-last-frozen` | Mixin applied to the last frozen column cells | `{}`\n`--vaadin-grid-body-row-hover-cell` | Mixin applied to body cells on hovered row | `{}`\n`--vaadin-grid-body-row-selected-cell` | Mixin applied to body cells on selected rows | `{}`\n`--vaadin-grid-body-row-active-cell` | Mixin applied to body cells on active row | `{}`\n`--vaadin-grid-body-row-details-cell` | Mixin applied to cells on details rows | `{}`\n`--vaadin-grid-focused-cell` | Mixin applied to cells with keyboard focus | `{}`\n`--vaadin-grid-loading-spinner` | Mixin applied to the loading spinner | `{}`\n`--vaadin-grid-column-resize-handle` | Mixin applied to the column resize handle | `{}`\n\n__Note:__ you can also style cell template contents by targeting them with\nstandard CSS. For example, using classes to apply custom background on a frozen\ncolumn and aling numeric contents to the right:\n\n    <style is=\"custom-style\">\n      vaadin-grid {\n        --vaadin-grid-cell: {\n          padding: 0;\n        };\n      }\n\n      .cell {\n        height: 100%;\n        display: flex;\n        flex-direction: column;\n        justify-content: center;\n        padding: 8px;\n      }\n\n      .frozen {\n        background: lightgray;\n      }\n\n      .numeric {\n        text-align: right;\n      }\n    </style>\n\n    <vaadin-grid>\n\n      <vaadin-grid-column width=\"100px\" frozen>\n        <template class=\"header\">\n          <div class=\"cell frozen\">User Name</div>\n        </template>\n        <template>\n          <div class=\"cell frozen\">[[item.username]]</div>\n        </template>\n      </vaadin-grid-column>\n\n        ...\n\n      <vaadin-grid-column>\n        <template class=\"header\">\n          <div class=\"cell numeric\">Age</div>\n        </template>\n        <template>\n          <div class=\"cell numeric\">[[item.age]]</div>\n        </template>\n      </vaadin-grid-column>\n\n    </vaadin-grid>\n\nSee also the “Styling” demos.\n\n### Keyboard Navigation\n\n#### In navigation mode\n\nKey | Action\n----|--------\n<kbd>Tab</kbd> | Moves the keyboard focus from header -> body -> footer\n<kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves the keyboard focus from header <- body <- footer\n<kbd>Down</kbd> | Moves the keyboard focus to the cell on the next row\n<kbd>Up</kbd> | Moves the keyboard focus to the cell on the previous row\n<kbd>Right</kbd> | Moves the keyboard focus to the next cell\n<kbd>Left</kbd> | Moves the keyboard focus to the previous cell\n<kbd>PgDn</kbd> | Moves the keyboard focus one page down\n<kbd>PgUp</kbd> | Moves the keyboard focus one page up\n<kbd>Home</kbd> | Moves the keyboard focus to the first cell of the focused row\n<kbd>End</kbd> | Moves the keyboard focus to the last cell of the focused row\n<kbd>Ctrl</kbd>+<kbd>Home</kbd> | Moves the keyboard focus to the first cell of the first row\n<kbd>Ctrl</kbd>+<kbd>End</kbd> | Moves the keyboard focus to the last cell of the last row\n<kbd>Space</kbd> | Activates the item on the focused body cell\n<kbd>Enter</kbd> or <kbd>F2</kbd> | Activates the interactive mode for the focused cell\n\n<b>Note</b>: If the focused cell has child elements, the <kbd>Space</kbd> key\nclicks the first child element of the focused cell. See an example on the\n“Selection” demo page for more information.\n\n#### In interactive mode\n\nKey | Action\n----|--------\n<kbd>F2</kbd> or <kbd>ESC</kbd> | Deactivates the interactive mode\n\n<b>Note</b>: When entering interactive mode with <kbd>Enter</kbd> or <kbd>F2</kbd>, the\nfirst element in the cell will be focused. You can override the behavior by applying a\n`focus-target` attribute on the child element your want to be focused first."
+}

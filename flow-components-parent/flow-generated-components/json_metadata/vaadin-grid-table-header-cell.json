@@ -1,0 +1,177 @@
+{
+  "name": "vaadin-grid-table-header-cell",
+  "tag": "vaadin-grid-table-header-cell",
+  "baseUrl": "vaadin-grid/vaadin-grid-table-cell.html",
+  "version": "UNKNOWN",
+  "properties": [
+    {
+      "name": "column",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "expanded",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "flexGrow",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "colSpan",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "focused",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "frozen",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "lastFrozen",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "hidden",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "instance",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "index",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "item",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "selected",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "template",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "target",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "width",
+      "type": [
+        "STRING"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "order",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "reorderStatus",
+      "type": [
+        "STRING"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "headerTemplate",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "resizable",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "columnResizing",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    }
+  ],
+  "methods": [],
+  "events": [],
+  "slots": [],
+  "behaviors": [
+    "vaadinGridTableCellBehavior",
+    "vaadin.elements.grid.CellClickBehavior"
+  ],
+  "mixins": [],
+  "description": ""
+}

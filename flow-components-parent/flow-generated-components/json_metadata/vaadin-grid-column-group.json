@@ -1,0 +1,82 @@
+{
+  "name": "vaadin-grid-column-group",
+  "tag": "vaadin-grid-column-group",
+  "baseUrl": "vaadin-grid/vaadin-grid-column-group.html",
+  "properties": [
+    {
+      "name": "resizable",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When set to true, the column is user-resizable."
+    },
+    {
+      "name": "frozen",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When true, the column is frozen. When a column inside of a column group is frozen,\nall of the sibling columns inside the group will get frozen also.\n       "
+    },
+    {
+      "name": "hidden",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When set to true, the cells for this column are hidden.\n       "
+    },
+    {
+      "name": "flexGrow",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": "Flex grow ratio for the column group as the sum of the ratios of its child columns.\n         ",
+      "readOnly": true
+    },
+    {
+      "name": "width",
+      "type": [
+        "STRING"
+      ],
+      "objectType": [],
+      "description": "Width of the column group as the sum of the widths of its child columns.\n         ",
+      "readOnly": true
+    },
+    {
+      "name": "colSpan",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": "Represents the number of child columns of this group.\n         ",
+      "readOnly": true
+    }
+  ],
+  "methods": [],
+  "events": [
+    {
+      "name": "frozen-changed",
+      "description": "Fired when the `frozen` property changes.",
+      "properties": []
+    },
+    {
+      "name": "hidden-changed",
+      "description": "Fired when the `hidden` property changes.",
+      "properties": []
+    },
+    {
+      "name": "col-span-changed",
+      "description": "Fired when the `colSpan` property changes.",
+      "properties": []
+    }
+  ],
+  "slots": [],
+  "behaviors": [
+    "vaadin.elements.grid.ColumnBaseBehavior"
+  ],
+  "mixins": [],
+  "description": "A `vaadin-grid-column-group` is used to wrap many columns under a common header. It supports nested groups.\n\nThe `class` attribute is used to differentiate header and footer templates.\n\n#### Example:\n\n    <vaadin-grid>\n      <vaadin-grid-column-group>\n        <template class=\"header\">I'm in the group header</template>\n        <template class=\"footer\">I'm in the group footer</template>\n        <vaadin-grid-column>\n          <template class=\"header\">I'm in the first header</template>\n          <template>I'm in the first body cell</template>\n          <template class=\"footer\">I'm in the first footer</template>\n        </vaadin-grid-column>\n        <vaadin-grid-column>\n          <template class=\"header\">I'm in the second header</template>\n          <template>I'm in the second body cell</template>\n          <template class=\"footer\">I'm in the second footer</template>\n        </vaadin-grid-column>\n      </vaadin-grid-column-group>\n    </vaadin-grid>"
+}

@@ -1,0 +1,39 @@
+{
+  "name": "vaadin-grid-table-focus-trap",
+  "tag": "vaadin-grid-table-focus-trap",
+  "baseUrl": "vaadin-grid/vaadin-grid-table-focus-trap.html",
+  "properties": [
+    {
+      "name": "activeTarget",
+      "type": [
+        "STRING"
+      ],
+      "objectType": [],
+      "description": ""
+    }
+  ],
+  "methods": [
+    {
+      "name": "focus",
+      "description": " so it's easier to avoid using them across shadow roots.",
+      "parameters": [
+        {
+          "name": "e",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    }
+  ],
+  "events": [],
+  "slots": [
+    ""
+  ],
+  "behaviors": [],
+  "mixins": [],
+  "description": ""
+}

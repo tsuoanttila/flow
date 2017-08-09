@@ -1,0 +1,120 @@
+{
+  "name": "vaadin-grid-table-footer",
+  "tag": "vaadin-grid-table-footer",
+  "baseUrl": "vaadin-grid/vaadin-grid-table-header-footer.html",
+  "version": "UNKNOWN",
+  "properties": [
+    {
+      "name": "columnTree",
+      "type": [
+        "ARRAY"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "target",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "focused",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    }
+  ],
+  "methods": [
+    {
+      "name": "focusLeft",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusDown",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusPageDown",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusPageUp",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusRight",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusUp",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusHome",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusEnd",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusFirst",
+      "description": "",
+      "parameters": [
+        {
+          "name": "e",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "focusLast",
+      "description": "",
+      "parameters": [
+        {
+          "name": "e",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "behaviors": [
+    "vaadinGridTableRowContainerBehavior",
+    "vaadin.elements.grid.FocusableCellContainerBehavior"
+  ],
+  "mixins": [],
+  "description": ""
+}

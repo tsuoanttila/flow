@@ -1,0 +1,89 @@
+{
+  "name": "vaadin-grid-selection-column",
+  "tag": "vaadin-grid-selection-column",
+  "baseUrl": "vaadin-grid/vaadin-grid-selection-column.html",
+  "properties": [
+    {
+      "name": "resizable",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When set to true, the column is user-resizable."
+    },
+    {
+      "name": "frozen",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When true, the column is frozen. When a column inside of a column group is frozen,\nall of the sibling columns inside the group will get frozen also.\n       "
+    },
+    {
+      "name": "hidden",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When set to true, the cells for this column are hidden.\n       "
+    },
+    {
+      "name": "width",
+      "type": [
+        "STRING"
+      ],
+      "objectType": [],
+      "description": "Width of the cells for this column.\n         "
+    },
+    {
+      "name": "flexGrow",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": "Flex grow ratio for the cell widths. When set to 0, cell width is fixed.\n         "
+    },
+    {
+      "name": "selectAll",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When true it selects all the items.\n         "
+    },
+    {
+      "name": "autoSelect",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": "When true it adds the active item to selectedItems.\n         "
+    }
+  ],
+  "methods": [],
+  "events": [
+    {
+      "name": "frozen-changed",
+      "description": "Fired when the `frozen` property changes.",
+      "properties": []
+    },
+    {
+      "name": "hidden-changed",
+      "description": "Fired when the `hidden` property changes.",
+      "properties": []
+    },
+    {
+      "name": "select-all-changed",
+      "description": "Fired when the `selectAll` property changes.",
+      "properties": []
+    }
+  ],
+  "slots": [],
+  "behaviors": [
+    "vaadin.elements.grid.ColumnBehavior",
+    "vaadin.elements.grid.ColumnBaseBehavior",
+    "vaadin.elements.grid.ColumnBehaviorImpl"
+  ],
+  "mixins": [],
+  "description": "`vaadin-grid-selection-column` is a helper element for the `vaadin-grid` that provides default templates and functionality for the selection.\nWith it the user can select rows using checkboxes displayed in a column.\n\nWhen the grid is configured with an array of items as the data provider, it provides the feature of selecting all the items by clicking on the checkbox in the header."
+}

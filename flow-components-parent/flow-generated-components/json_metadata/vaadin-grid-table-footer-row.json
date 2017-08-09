@@ -1,0 +1,124 @@
+{
+  "name": "vaadin-grid-table-footer-row",
+  "tag": "vaadin-grid-table-footer-row",
+  "baseUrl": "vaadin-grid/vaadin-grid-table-row.html",
+  "version": "UNKNOWN",
+  "properties": [
+    {
+      "name": "active",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "columns",
+      "type": [
+        "ARRAY"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "index",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "cells",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "target",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "expanded",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "focused",
+      "type": [
+        "BOOLEAN"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "item",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "selected",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "rowDetailsTemplate",
+      "type": [
+        "OBJECT"
+      ],
+      "objectType": [],
+      "description": ""
+    }
+  ],
+  "methods": [
+    {
+      "name": "iterateCells",
+      "description": "",
+      "parameters": [
+        {
+          "name": "callback",
+          "type": [
+            "OBJECT"
+          ],
+          "objectType": [],
+          "description": "Missing documentation!"
+        }
+      ],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "updateRowDetailsCellMetrics",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    },
+    {
+      "name": "updateLastColumn",
+      "description": "",
+      "parameters": [],
+      "returns": "UNDEFINED"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "behaviors": [
+    "vaadinGridTableRowBehavior"
+  ],
+  "mixins": [],
+  "description": ""
+}

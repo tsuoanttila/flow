@@ -1,0 +1,29 @@
+{
+  "name": "vaadin-grid-sizer",
+  "tag": "vaadin-grid-sizer",
+  "baseUrl": "vaadin-grid/vaadin-grid-sizer.html",
+  "properties": [
+    {
+      "name": "columnTree",
+      "type": [
+        "ARRAY"
+      ],
+      "objectType": [],
+      "description": ""
+    },
+    {
+      "name": "top",
+      "type": [
+        "NUMBER"
+      ],
+      "objectType": [],
+      "description": ""
+    }
+  ],
+  "methods": [],
+  "events": [],
+  "slots": [],
+  "behaviors": [],
+  "mixins": [],
+  "description": ""
+}

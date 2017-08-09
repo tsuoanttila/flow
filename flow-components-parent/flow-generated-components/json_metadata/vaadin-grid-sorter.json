@@ -1,0 +1,39 @@
+{
+  "name": "vaadin-grid-sorter",
+  "tag": "vaadin-grid-sorter",
+  "baseUrl": "vaadin-grid/vaadin-grid-sorter.html",
+  "properties": [
+    {
+      "name": "path",
+      "type": [
+        "STRING"
+      ],
+      "objectType": [],
+      "description": "JS Path of the property in the item used for sorting the data.\n         "
+    },
+    {
+      "name": "direction",
+      "type": [
+        "STRING"
+      ],
+      "objectType": [],
+      "description": "How to sort the data.\nPossible values are `asc` to use an ascending algorithm, `desc` to sort the data in\ndescending direction, or `null` for not sorting the data.\n         "
+    }
+  ],
+  "methods": [],
+  "events": [
+    {
+      "name": "direction-changed",
+      "description": "Fired when the `direction` property changes.",
+      "properties": []
+    }
+  ],
+  "slots": [
+    ""
+  ],
+  "behaviors": [
+    "vaadin.elements.grid.CellClickBehavior"
+  ],
+  "mixins": [],
+  "description": "`vaadin-grid-sorter` is a helper element for the `vaadin-grid` that provides out-of-the-box UI controls,\nvisual feedback, and handlers for sorting the grid data.\n\n\n### Styling\nThe following custom properties and mixins are available for styling:\n\nCustom property | Description | Default\n----------------|-------------|----------\n`--vaadin-grid-sorter-arrow` | Mixin applied to the arrow | `{}`\n`--vaadin-grid-sorter-order` | Mixin applied to the order | `{}`"
+}
