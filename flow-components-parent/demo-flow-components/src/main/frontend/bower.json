@@ -35,7 +35,7 @@
     "vaadin-form-layout": "~1.0.0",
     "vaadin-split-layout": "~3.0.0-alpha1",
     "vaadin-date-picker": "~2.0.0",
-    "vaadin-grid": "ee286b8ced5b2ea1fd16899163ee37a43287c8bf"
+    "vaadin-grid": "~3.0.1"
   },
   "resolutions": {
     "iron-flex-layout": "1 - 2",

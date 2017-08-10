@@ -15,13 +15,18 @@
  */
 package com.vaadin.flow.demo.views;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.demo.ComponentDemo;
 import com.vaadin.flow.demo.grid.Grid;
-import com.vaadin.flow.demo.grid.Grid.SimpleDataProvider;
+import com.vaadin.flow.demo.grid.SimpleDataProvider;
 import com.vaadin.flow.demo.views.VaadinComboBoxView.Song;
+import com.vaadin.flow.html.Button;
+import com.vaadin.flow.html.Div;
 import com.vaadin.flow.html.H3;
 
 /**
@@ -34,6 +39,7 @@ public class GridView extends DemoView {
     void initView() {
         initDefaultView();
         initSetItemsView();
+        initMultiSelectionView();
     }
 
     private void initDefaultView() {
@@ -64,6 +70,36 @@ public class GridView extends DemoView {
         // end-source-example
 
         addCard(new H3("Grid with List Data"), grid);
+
+        setStylesForGrid(grid);
+    }
+
+    private void initMultiSelectionView() {
+        // begin-source-example
+        // source-example-heading: Grid with Multiple Item Selection
+        List<Song> songs = getRandomSongs(1000).collect(Collectors.toList());
+        Grid<Song> grid = new Grid<>();
+        grid.setItems(songs);
+
+        grid.addColumn(Song::getName).setHeaderTemplate("Name");
+        grid.addColumn(Song::getArtist).setHeaderTemplate("Artist");
+        grid.addColumn(Song::getAlbum).setHeaderTemplate("Album");
+
+        Button selectSongsButton = new Button("Select Songs 6-10");
+        selectSongsButton.addClickListener(event -> {
+            grid.asMultiSelect().updateSelection(
+                    new HashSet<>(songs.subList(5, 10)),
+                    Collections.emptySet());
+        });
+
+        Div selectionMessage = new Div();
+        grid.asMultiSelect().addValueChangeListener(event -> selectionMessage
+                .setText(String.format("Selection changed from %s to %s.",
+                        event.getOldValue(), event.getValue())));
+        // end-source-example
+
+        addCard(new H3("Grid with Multiple Item Selection"), grid,
+                selectSongsButton, selectionMessage);
 
         setStylesForGrid(grid);
     }

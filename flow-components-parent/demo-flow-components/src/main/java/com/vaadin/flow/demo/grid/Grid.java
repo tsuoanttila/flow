@@ -17,19 +17,22 @@ package com.vaadin.flow.demo.grid;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import com.vaadin.annotations.HtmlImport;
 import com.vaadin.annotations.Tag;
+import com.vaadin.flow.demo.grid.SelectionModel.Multi;
+import com.vaadin.flow.demo.grid.SelectionModel.Single;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HasSize;
 import com.vaadin.ui.HasStyle;
@@ -51,75 +54,86 @@ import elemental.json.JsonValue;
 public class Grid<T> extends Component
         implements HasStyle, HasSize {
 
-    /**
-     * POC data provider interface.
-     * 
-     * @param <T>
-     *            type of the items provided
-     */
-    public static interface SimpleDataProvider<T> {
+    private class GridMultiSelectionModelImpl implements Multi<Grid<T>, T> {
 
-        /**
-         * The total number of available data items.
-         * 
-         * @return the total number of available data items
-         */
-        int size();
-
-        /**
-         * 
-         * @param page
-         * @param pageSize
-         * @return
-         */
-        Stream<T> fetch(int page, int pageSize);
-
-        /**
-         * 
-         * @param sizeCallback
-         * @param fetchCallback
-         * @return
-         */
-        public static <T> SimpleDataProvider<T> fromCallbacks(
-                Supplier<Integer> sizeCallback,
-                BiFunction<Integer, Integer, Stream<T>> fetchCallback) {
-            return new SimpleDataProvider<T>() {
-
-                @Override
-                public int size() {
-                    return sizeCallback.get();
-                }
-
-                @Override
-                public Stream<T> fetch(int page, int pageSize) {
-                    return fetchCallback.apply(page, pageSize);
-                }
-            };
-        }
-    }
-
-    /**
-     * POC in-memory data provider implementation.
-     * 
-     * @param <T>
-     *            type of the items provided
-     */
-    public static class ListDataProvider<T> implements SimpleDataProvider<T> {
-        
-        private final List<T> items;
-        
-        public ListDataProvider(List<T> items) {
-            this.items = items;
+        @Override
+        public Set<T> getSelectedItems() {
+            JsonArray selection = (JsonArray) getElement()
+                    .getPropertyRaw(getClientValuePropertyName());
+            return selectionKeyArrayToSet(selection);
         }
 
         @Override
-        public int size() {
-            return items.size();
+        public void select(T item) {
+            getElement().callFunction("select", keyMapper.key(item));
         }
 
         @Override
-        public Stream<T> fetch(int page, int pageSize) {
-            return items.subList(page * pageSize, page * pageSize + pageSize).stream();
+        public void deselect(T item) {
+            getElement().callFunction("deselect", keyMapper.key(item));
+        }
+
+        @Override
+        public Grid<T> setValue(Set<T> value) {
+            updateSelection(value, getValue());
+            return get();
+        }
+
+        @Override
+        public Set<T> getValue() {
+            return getSelectedItems();
+        }
+
+        @Override
+        public void updateSelection(Set<T> addedItems, Set<T> removedItems) {
+            removedItems.forEach(this::deselect);
+            addedItems.forEach(this::select);
+        }
+
+        @Override
+        public Registration addValueChangeListener(
+                ValueChangeListener<Grid<T>, Set<T>> listener) {
+            get().getElement().synchronizeProperty(getClientValuePropertyName(),
+                    getClientPropertyChangeEventName());
+            return get().getElement().addPropertyChangeListener(
+                    getClientValuePropertyName(),
+                    event -> listener.onComponentEvent(
+                            new ValueChangeEvent<>(get(), this,
+                                    selectionKeyArrayToSet(
+                                            (JsonArray) event.getOldValue()),
+                                    event.isUserOriginated())));
+        }
+
+        @Override
+        public Set<T> getEmptyValue() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public String getClientValuePropertyName() {
+            return "selectedItems";
+        }
+
+        @Override
+        public String getClientPropertyChangeEventName() {
+            return "selected-items-changed";
+        }
+
+        @Override
+        public Grid<T> get() {
+            return Grid.this;
+        }
+
+        private Set<T> selectionKeyArrayToSet(JsonArray selection) {
+            if (selection == null) {
+                return getEmptyValue();
+            }
+            Set<T> selectedItems = new LinkedHashSet<T>();
+            for (int i = 0; i < selection.length(); ++i) {
+                T item = keyMapper.get(selection.getString(i));
+                selectedItems.add(item);
+            }
+            return selectedItems;
         }
     }
 
@@ -211,14 +225,18 @@ public class Grid<T> extends Component
     }
 
     private final List<Column<T, ?>> columns;
+    private final KeyMapper<T> keyMapper;
 
     private SimpleDataProvider<T> dataProvider;
+    private SelectionModel<T> selectionModel;
 
     /**
      * Default constructor.
      */
     public Grid() {
         columns = new ArrayList<>();
+        keyMapper = new KeyMapper();
+        selectionModel = new GridMultiSelectionModelImpl();
         getElement().addEventListener("page-request", this::requestPage,
                 "event.detail.page", "event.detail.pageSize");
     }
@@ -277,6 +295,15 @@ public class Grid<T> extends Component
         return column;
     }
 
+    @SuppressWarnings("unchecked")
+    public Multi<Grid<T>, T> asMultiSelect() {
+        return (Multi<Grid<T>, T>) selectionModel;
+    }
+
+    public Single<Grid<T>, T> asSingleSelect() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     private void requestPage(DomEvent event) {
         int page = (int) event.getEventData().getNumber("event.detail.page");
         int pageSize = (int) event.getEventData()
@@ -303,6 +330,7 @@ public class Grid<T> extends Component
         columns.forEach(column ->
             value.put(column.getColumnId(), JsonSerializer
                 .toJson(column.getValueProvider().apply(item))));
+        value.put("communicationKey", keyMapper.key(item));
         return value;
     }
 }

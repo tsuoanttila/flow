@@ -4,13 +4,28 @@
 <dom-module id="simple-grid">
 
   <template>
-    <vaadin-grid data-provider="[[dataProvider]]" size=[[size]]>
+    <vaadin-grid id="grid" data-provider=[[dataProvider]] size=[[size]] active-item={{activeItem}}>
       <slot name="columns"></slot>
     </vaadin-grid>
   </template>
 
   <script>
       class SimpleGrid extends Polymer.Element {
+
+        static get properties() {
+        	return {
+        		activeItem: {
+        			observer: '_activeItemChanged'
+        		},
+        		selectedItems: {
+        			type: Array,
+        			notify: true,
+        			value: function() {
+        				return [];
+        			}
+        		}
+        	}
+        }
 
         static get is() {
           return 'simple-grid';
@@ -19,19 +34,59 @@
         initDataProvider() {
           this.callbacks = {};
           this.dataProvider = (params, callback) => {
-        	  console.log(callback);
             this.dispatchEvent(new CustomEvent('page-request', {detail:{page: params.page, pageSize: params.pageSize}}));
             this.callbacks[params.page] = callback;
           };
         }
 
         loadPage(pageInfo) {
-        	console.log("page info");
-        	console.log(pageInfo);
           if (pageInfo) {
             this.callbacks[pageInfo.page](pageInfo.items);
             this.callbacks[pageInfo.page] = null;
           }
+        }
+        
+        select(communicationKey) {
+        	const item = this._getItem(communicationKey);
+        	if (item) {
+        		this._select(item);
+        	}
+        }
+        
+        deselect(communicationKey) {
+        	const item = this._getItem(communicationKey);
+        	if (item) {
+        		this._deselect(item);
+        	}
+        }
+        
+        _getItem(communicationKey) {
+        	return Array.prototype.concat(...Object.values(this.$.grid._cache)).find(item => {
+        		return item.communicationKey === communicationKey;
+        	});
+        }
+        
+        _activeItemChanged(newItem, oldItem) {
+        	const item = newItem ? newItem : oldItem;
+        	if (this.$.grid.selectedItems.indexOf(item) != -1) {
+        		this._deselect(item);
+        	} else {
+            	this._select(item);
+        	}
+        }
+        
+        _select(item) {
+        	this.$.grid.selectItem(item);
+        	this.selectedItems = item ? [...this.selectedItems, item.communicationKey] : this.selectedItems;
+        }
+        
+        _deselect(item) {
+        	this.$.grid.deselectItem(item);
+        	if (item) {
+        		const newItems = this.selectedItems.slice();
+        		newItems.splice(newItems.indexOf(item.communicationKey), 1);
+        		this.selectedItems = newItems;
+        	}
         }
       }
       window.customElements.define(SimpleGrid.is, SimpleGrid);
