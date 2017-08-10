@@ -27,6 +27,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.html.Div;
 import com.vaadin.generated.vaadin.grid.GeneratedVaadinGrid;
 import com.vaadin.generated.vaadin.grid.GeneratedVaadinGridColumn;
+import com.vaadin.generated.vaadin.grid.GeneratedVaadinGridColumnGroup;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
 import com.vaadin.util.JsonSerializer;
@@ -116,19 +117,24 @@ public class GridView extends DemoView {
                 "<iron-image style=\"height: 48px; width: 48px; border-radius: 50%;\" src=\"[[item.picture.thumbnail]]\">");
         grid.add(col);
 
+        GeneratedVaadinGridColumnGroup group = new GeneratedVaadinGridColumnGroup();
+        createTemplate(group, "Person").getClassList().add("header");
+
         col = new GeneratedVaadinGridColumn();
         col.setWidth("calc(50% - 100px)");
 
         createTemplate(col, "First name").getClassList().add("header");
         createClickableTemplate(col, "[[item.name.first]]");
-        grid.add(col);
+        group.getElement().appendChild(col.getElement());
 
         col = new GeneratedVaadinGridColumn();
         col.setWidth("calc(50% - 100px)");
 
         createTemplate(col, "Last name").getClassList().add("header");
         createClickableTemplate(col, "[[item.name.last]]");
-        grid.add(col);
+        group.getElement().appendChild(col.getElement());
+
+        grid.add(group);
 
         int numberOfUsers = 50;
         UI ui = UI.getCurrent();
