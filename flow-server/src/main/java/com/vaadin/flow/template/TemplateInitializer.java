@@ -61,6 +61,7 @@ public class TemplateInitializer {
     private final Class<? extends PolymerTemplate<?>> templateClass;
 
     private final Map<String, Element> registeredElementIdToCustomElement = new HashMap<>();
+    private Map<String, com.vaadin.external.jsoup.nodes.Element> registeredElementIdToNodeElement = new HashMap<>();
     private final boolean useCache;
     private final ParserData parserData;
     private final Set<String> notInjectableElementIds = new HashSet<>();
@@ -80,7 +81,7 @@ public class TemplateInitializer {
     }
 
     private static class ParserData
-    implements Function<String, Optional<String>> {
+            implements Function<String, Optional<String>> {
         private final Map<String, String> tagById = new HashMap<>();
         private final Collection<SubTemplateData> subTemplates = new ArrayList<>();
 
@@ -152,7 +153,7 @@ public class TemplateInitializer {
 
         requestAttachCustomElement(childElement, templateRoot);
         childElement.children()
-        .forEach(child -> inspectCustomElements(child, templateRoot));
+                .forEach(child -> inspectCustomElements(child, templateRoot));
     }
 
     private void storeNotInjectableElementId(
@@ -203,11 +204,17 @@ public class TemplateInitializer {
             JsonArray path = getPath(element, templateRoot);
             assert !useCache;
             parserData.addSubTemplate(id, tag, path);
-            doRequestAttachCustomElement(id, tag, path);
+            Element customElement = doRequestAttachCustomElement(id, tag, path);
+            setElementAttributes(customElement, element);
+
+        }
+        String id = element.hasAttr("id") ? element.attr("id") : null;
+        if (id != null) {
+            registeredElementIdToNodeElement.put(id, element);
         }
     }
 
-    private void doRequestAttachCustomElement(String id, String tag,
+    private Element doRequestAttachCustomElement(String id, String tag,
             JsonArray path) {
         StateNode customNode = BasicElementStateProvider.createStateNode(tag);
         Element customElement = Element.get(customNode);
@@ -224,11 +231,12 @@ public class TemplateInitializer {
 
         stateNode.runWhenAttached(ui -> {
             stateNode.getFeature(AttachTemplateChildFeature.class)
-            .register(getElement(), customNode);
+                    .register(getElement(), customNode);
             ui.getPage().executeJavaScript(
                     "this.attachCustomElement($0, $1, $2, $3);", getElement(),
                     tag, customNode.getId(), path);
         });
+        return customElement;
     }
 
     private JsonArray getPath(com.vaadin.external.jsoup.nodes.Element element,
@@ -291,8 +299,8 @@ public class TemplateInitializer {
         }
 
         Stream.of(cls.getDeclaredFields()).filter(field -> !field.isSynthetic())
-        .forEach(field -> tryMapComponentOrElement(field,
-                registeredElementIdToCustomElement));
+                .forEach(field -> tryMapComponentOrElement(field,
+                        registeredElementIdToCustomElement));
     }
 
     private void tryMapComponentOrElement(Field field,
@@ -307,7 +315,7 @@ public class TemplateInitializer {
             throw new IllegalStateException(String.format(
                     "Class '%s' contains field '%s' annotated with @Id('%s'). "
                             + "Corresponding element was found in a sub template, for which injection is not supported",
-                            templateClass.getName(), field.getName(), id));
+                    templateClass.getName(), field.getName(), id));
         }
 
         Optional<String> tagName = getTagName(id);
@@ -315,7 +323,7 @@ public class TemplateInitializer {
             throw new IllegalStateException(String.format(
                     "There is no element with "
                             + "id='%s' in the template file. Cannot map it using @%s",
-                            id, Id.class.getSimpleName()));
+                    id, Id.class.getSimpleName()));
         }
 
         Element element = getElementById(id).orElse(null);
@@ -363,8 +371,8 @@ public class TemplateInitializer {
                     "Class '%s' has field '%s' whose type '%s' is annotated with "
                             + "tag '%s' but the element defined in the HTML "
                             + "template with id '%s' has tag name '%s'",
-                            templateClass.getName(), field.getName(),
-                            fieldType.getName(), tag.value(), id, tagName);
+                    templateClass.getName(), field.getName(),
+                    fieldType.getName(), tag.value(), id, tagName);
             throw new IllegalStateException(msg);
         }
         attachExistingElementById(tagName, id, field, registeredCustomElements);
@@ -412,17 +420,32 @@ public class TemplateInitializer {
             StateNode proposedNode = BasicElementStateProvider
                     .createStateNode(tagName);
             element = Element.get(proposedNode);
-            element.setAttribute(NodeProperties.ID, id);
+            if (registeredElementIdToNodeElement.containsKey(id)) {
+                com.vaadin.external.jsoup.nodes.Element nodeElement = registeredElementIdToNodeElement
+                        .get(id);
+                setElementAttributes(element, nodeElement);
+            } else {
+                element.setAttribute(NodeProperties.ID, id);
+            }
             StateNode templateNode = getElement().getNode();
             templateNode.runWhenAttached(ui -> {
                 templateNode.getFeature(AttachTemplateChildFeature.class)
-                .register(getElement(), proposedNode);
+                        .register(getElement(), proposedNode);
                 ui.getPage().executeJavaScript(
                         "this.attachExistingElementById($0, $1, $2, $3);",
                         getElement(), tagName, proposedNode.getId(), id);
             });
         }
         injectTemplateElement(element, field);
+    }
+
+    private void setElementAttributes(Element element,
+            com.vaadin.external.jsoup.nodes.Element nodeElement) {
+        for (com.vaadin.external.jsoup.nodes.Attribute attribute : nodeElement
+                .attributes()) {
+            element.setAttribute(attribute.getKey(),
+                    attribute.getValue());
+        }
     }
 
     private Element getElement() {
@@ -451,10 +474,10 @@ public class TemplateInitializer {
                     "The field '%s' in '%s' has an @'%s' "
                             + "annotation but the field type '%s' "
                             + "does not extend neither '%s' nor '%s'",
-                            field.getName(), templateClass.getName(),
-                            Id.class.getSimpleName(), fieldType.getName(),
-                            Component.class.getSimpleName(),
-                            Element.class.getSimpleName());
+                    field.getName(), templateClass.getName(),
+                    Id.class.getSimpleName(), fieldType.getName(),
+                    Component.class.getSimpleName(),
+                    Element.class.getSimpleName());
 
             throw new IllegalArgumentException(msg);
         }
@@ -462,8 +485,8 @@ public class TemplateInitializer {
 
     private void createSubTemplates() {
         parserData.subTemplates
-        .forEach(data -> doRequestAttachCustomElement(data.id, data.tag,
-                data.path));
+                .forEach(data -> doRequestAttachCustomElement(data.id, data.tag,
+                        data.path));
     }
 
 }
