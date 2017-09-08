@@ -43,6 +43,9 @@ import elemental.json.JsonValue;
 @HtmlImport("frontend://bower_components/vaadin-grid/vaadin-grid.html")
 @JavaScript("context://gridConnector.js")
 public class Grid<T> extends Component implements HasDataProvider<T> {
+    // XXX Allow changing
+    private final int pageSize = 100;
+
     private final ArrayUpdater arrayUpdater = new ArrayUpdater() {
         @Override
         public Update startUpdate(int currentSize) {
@@ -84,8 +87,7 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
     private int nextColumnId = 0;
 
     public Grid() {
-        // No lazy loading for now
-        dataCommunicator.setRequestedRange(0, Integer.MAX_VALUE);
+        dataCommunicator.setRequestedRange(0, pageSize);
     }
 
     @Override
@@ -93,7 +95,8 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
         super.onAttach(attachEvent);
 
         attachEvent.getUI().getPage().executeJavaScript(
-                "window.gridConnector.initArray($0)", getElement());
+                "window.gridConnector.initLazy($0, $1)", getElement(),
+                pageSize);
     }
 
     public void addColumn(String header,
@@ -128,6 +131,11 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
     @ClientDelegate
     public void confirmUpdate(int id) {
         dataCommunicator.confirmUpdate(id);
+    }
+
+    @ClientDelegate
+    public void setRequestedRange(int start, int length) {
+        dataCommunicator.setRequestedRange(start, length);
     }
 
     @Override

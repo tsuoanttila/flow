@@ -15,6 +15,8 @@
  */
 package com.vaadin.flow.components.it;
 
+import java.util.stream.IntStream;
+
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.ui.Grid;
 
@@ -22,7 +24,12 @@ public class GridView extends TestView {
     public GridView() {
         Grid<String> grid = new Grid<>();
 
-        grid.setDataProvider(DataProvider.ofItems("One", "Two", "Three"));
+        grid.setDataProvider(DataProvider.fromCallbacks(query -> {
+            return IntStream
+                    .range(query.getOffset(),
+                            query.getOffset() + query.getLimit())
+                    .mapToObj(Integer::toString);
+        }, query -> 10000));
         grid.addColumn("text", i -> i);
         grid.addColumn("length", i -> String.valueOf(i.length()));
 
