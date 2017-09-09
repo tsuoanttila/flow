@@ -18,6 +18,7 @@ package com.vaadin.flow.components.it;
 import java.util.stream.IntStream;
 
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.flow.html.NativeButton;
 import com.vaadin.ui.Grid;
 
 public class GridView extends TestView {
@@ -33,6 +34,9 @@ public class GridView extends TestView {
         grid.addColumn("text", i -> i);
         grid.addColumn("length", i -> String.valueOf(i.length()));
 
-        add(grid);
+        grid.setSelected("3", true);
+
+        add(grid, new NativeButton("Toggle selection of 3",
+                e -> grid.setSelected("3", !grid.isSelected("3"))));
     }
 }

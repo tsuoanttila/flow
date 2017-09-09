@@ -18,8 +18,10 @@ package com.vaadin.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import com.vaadin.annotations.ClientDelegate;
@@ -40,6 +42,7 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 @Tag("vaadin-grid")
+@HtmlImport("frontend://bower_components/paper-checkbox/paper-checkbox.html")
 @HtmlImport("frontend://bower_components/vaadin-grid/vaadin-grid.html")
 @JavaScript("context://gridConnector.js")
 public class Grid<T> extends Component implements HasDataProvider<T> {
@@ -84,10 +87,21 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
     private final DataCommunicator<T> dataCommunicator = new DataCommunicator<>(
             this::generateItemJson, arrayUpdater, getElement().getNode());
 
+    private final Set<T> selectedItems = new HashSet<>();
+
     private int nextColumnId = 0;
 
     public Grid() {
+        // Push initial rows
         dataCommunicator.setRequestedRange(0, pageSize);
+
+        // getElement().appendChild(new Element("vaadin-grid-selection-column")
+        // .setAttribute("auto-select", true));
+        Element selectionColumn = new Element("vaadin-grid-column");
+        selectionColumn.appendChild(new Element("template").setProperty(
+                "innerHTML",
+                "<paper-checkbox aria-label='Select Row' checked='{{selected}}'>Selected</paper-checkbox>"));
+        getElement().appendChild(selectionColumn);
     }
 
     @Override
@@ -123,6 +137,11 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
     private JsonValue generateItemJson(String key, T item) {
         JsonObject json = Json.createObject();
         json.put("key", key);
+
+        // XXX Should compare based on the data provider's key mapper?
+        if (selectedItems.contains(item)) {
+            json.put("selected", true);
+        }
         columnGenerators.forEach((columnKey, generator) -> json.put(columnKey,
                 generator.apply(item)));
         return json;
@@ -138,8 +157,42 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
         dataCommunicator.setRequestedRange(start, length);
     }
 
+    @ClientDelegate
+    public void select(int key) {
+        selectedItems.add(findByKey(key));
+    }
+
+    private T findByKey(int key) {
+        T item = dataCommunicator.getActiveItem(String.valueOf(key));
+        if (item == null) {
+            throw new IllegalStateException("Unkonwn key: " + key);
+        }
+        return item;
+    }
+
+    @ClientDelegate
+    public void deselect(int key) {
+        selectedItems.remove(findByKey(key));
+    }
+
     @Override
     public void setDataProvider(DataProvider<T, ?> dataProvider) {
         dataCommunicator.setDataProvider(dataProvider, null);
+    }
+
+    public void setSelected(T value, boolean selected) {
+        if (selected) {
+            selectedItems.add(value);
+        } else {
+            selectedItems.remove(value);
+        }
+
+        // TODO Only necessary if the item is currently active and the setting
+        // actually changed
+        dataCommunicator.reset();
+    }
+
+    public boolean isSelected(T item) {
+        return selectedItems.contains(item);
     }
 }

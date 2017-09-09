@@ -4,9 +4,39 @@ window.gridConnector = {
     	var pageCallbacks = {};
     	var cache = {};
     	var lastRequestedRange = [0, 0]
+    	var selectedKeys = {};
     	
     	grid.pageSize = pageSize;
     	grid.size = 0; // To avoid NaN here and there before we get proper data
+    	
+    	grid.selectedItems = {
+    		indexOf: function(item) {
+    			if (item && selectedKeys[item.key]) {
+    				return +item.key;
+    			} else {
+    				return -1;
+    			}
+    		},
+    		push: function() {
+    			for(var i = 0; i < arguments.length; i++) {
+    				var item = arguments[i];
+    				var key = item.key;
+    				selectedKeys[key] = item;
+    				grid.$server.select(key);
+    			}
+    		},
+    		splice: function(key, deleteCount) {
+    			if (deleteCount == 1 && arguments.length == 2 && selectedKeys[key]) {
+    				var item = selectedKeys[key];
+    				delete selectedKeys[key];
+    				grid.$server.deselect(key);
+    				return [item];
+    			} else {
+    				throw "wat";
+    			}
+    		}
+    	};
+    	
 		grid.dataProvider = function(params, callback) {
 			if (params.pageSize != pageSize) { throw "Invalid pageSize"; }
 			
@@ -58,6 +88,7 @@ window.gridConnector = {
 				grid._updateItems(page, items);
 			}
 		}
+		var updatedPages = {};
 		grid.connectorSet = function(index, items) {
 			if (index % pageSize != 0) {
 				throw "Got new data to index " + index + " which is not aligned with the page size of " + pageSize;
@@ -69,9 +100,19 @@ window.gridConnector = {
 			for (var i = 0; i < updatedPageCount; i++) {
 				var page = firstPage + i;
 				
-				cache[page] = items.slice(i * pageSize, (i + 1) * pageSize);
+				var items = items.slice(i * pageSize, (i + 1) * pageSize);
+				cache[page] = items;
 				
-				updateGridCache(page);
+				for(var j = 0; j < items.length; j++) {
+					var item = items[j]
+					if (item.selected) {
+						selectedKeys[item.key] = item;
+					} else {
+						delete selectedKeys[item.key];
+					}
+				}
+				
+				updatedPages[page] = true;
 			}
 		};
 		grid.connectorClear = function(index, length) {
@@ -85,9 +126,15 @@ window.gridConnector = {
 			for (var i = 0; i < updatedPageCount; i++) {
 				var page = firstPage + i;
 				
+				items = cache[page];
+				for(var j = 0; j < items.length; j++) {
+					var item = items[j]
+					delete selectedKeys[item.key];
+				}
+				
 				delete cache[page];
 				
-				updateGridCache(page);
+				updatedPages[page] = true;
 			}
 		};
 		grid.connectorUpdateSize = function(newSize) {
@@ -95,7 +142,12 @@ window.gridConnector = {
 		};
 		
 		grid.connectorConfirm = function(id) {
-			// We're done applying changes from this batch, resolve outstanding callbacks
+			// We're done applying changes from this batch, update grid and resolve callbacks
+			for(var page in updatedPages) {
+				updateGridCache(+page);
+			}
+			updatesPages = {}
+			
         	var outstandingRequests = Object.getOwnPropertyNames(pageCallbacks);
         	
         	for(var i = 0; i < outstandingRequests.length; i++) {

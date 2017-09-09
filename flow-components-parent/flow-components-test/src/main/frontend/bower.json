@@ -19,6 +19,7 @@
     "paper-spinner": "~2.0.0",
     "paper-card": "PolymerElements/paper-card#~2.0.0",
     "paper-progress": "~2.0.1",
+    "paper-checkbox": "~2.0.1",
     "paper-dialog": "~2.0.0",
     "neon-animation": "~2.0.1",
     "web-animations-js": "web-animations/web-animations-js#~2.2.5",
