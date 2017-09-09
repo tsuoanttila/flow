@@ -33,6 +33,7 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.ArrayUpdater;
 import com.vaadin.data.provider.DataCommunicator;
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.DataProviderView;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.util.HtmlUtils;
 import com.vaadin.flow.util.JsonUtils;
@@ -85,7 +86,8 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
 
     private final Map<String, Function<T, JsonValue>> columnGenerators = new HashMap<>();
     private final DataCommunicator<T> dataCommunicator = new DataCommunicator<>(
-            this::generateItemJson, arrayUpdater, getElement().getNode());
+            this::generateItemJson, arrayUpdater, getElement().getNode(),
+            new DataProviderView<>());
 
     private final Set<T> selectedItems = new HashSet<>();
 
@@ -177,7 +179,8 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
 
     @Override
     public void setDataProvider(DataProvider<T, ?> dataProvider) {
-        dataCommunicator.setDataProvider(dataProvider, null);
+        dataCommunicator.getDataProviderView().setDataProvider(dataProvider,
+                null);
     }
 
     public void setSelected(T value, boolean selected) {

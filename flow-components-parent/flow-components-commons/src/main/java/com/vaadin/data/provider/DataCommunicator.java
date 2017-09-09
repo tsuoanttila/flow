@@ -17,24 +17,23 @@ package com.vaadin.data.provider;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.ArrayUpdater.Update;
+import com.vaadin.data.provider.DataProviderView.Subscriber;
 import com.vaadin.flow.StateNode;
 import com.vaadin.flow.StateTree;
 import com.vaadin.server.KeyMapper;
-import com.vaadin.server.SerializableConsumer;
 import com.vaadin.shared.Range;
+import com.vaadin.shared.Registration;
 
 import elemental.json.JsonValue;
 
@@ -42,6 +41,7 @@ public class DataCommunicator<T> {
     private final BiFunction<String, T, JsonValue> dataGenerator;
     private final ArrayUpdater arrayUpdater;
     private final StateNode stateNode;
+    private final DataProviderView<T> dataProviderView;
 
     private final KeyMapper<T> keyMapper = new KeyMapper<>();
 
@@ -69,19 +69,18 @@ public class DataCommunicator<T> {
     // Update ids that have been confirmed since the last flush
     private final Set<Integer> confirmedUpdates = new HashSet<>();
 
-    private DataProvider<T, ?> dataProvider = DataProvider.ofItems();
-    private Object filter;
-    private Comparator<T> inMemorySorting;
-    private final List<QuerySortOrder> backEndSorting = new ArrayList<>();
+    private Registration subscriberRegistration;
 
     public DataCommunicator(BiFunction<String, T, JsonValue> dataGenerator,
-            ArrayUpdater arrayUpdater, StateNode stateNode) {
+            ArrayUpdater arrayUpdater, StateNode stateNode,
+            DataProviderView<T> dataProviderView) {
         this.dataGenerator = dataGenerator;
         this.arrayUpdater = arrayUpdater;
         this.stateNode = stateNode;
+        this.dataProviderView = dataProviderView;
 
         stateNode.addAttachListener(this::handleAttach);
-        stateNode.addDetachListener(this::handleDetach);
+        stateNode.addDetachListener(this::removeSubscriber);
 
         requestFlush();
     }
@@ -93,7 +92,33 @@ public class DataCommunicator<T> {
     }
 
     private void handleAttach() {
-        // TODO: Add data listener
+        removeSubscriber();
+        subscriberRegistration = dataProviderView
+                .addSubscriber(new Subscriber<T>() {
+                    @Override
+                    public void reset() {
+                        reset();
+                    }
+
+                    @Override
+                    public void refresh(T item) {
+                        // XXX implement
+                    }
+
+                    @Override
+                    public void setIdentifierGetter(
+                            ValueProvider<T, Object> identifierGetter) {
+                        keyMapper.setIdentifierGetter(identifierGetter);
+                        reset();
+                    }
+                });
+    }
+
+    private void removeSubscriber() {
+        if (subscriberRegistration != null) {
+            subscriberRegistration.remove();
+            subscriberRegistration = null;
+        }
     }
 
     private void handleDetach() {
@@ -122,7 +147,7 @@ public class DataCommunicator<T> {
         Set<String> oldActive = new HashSet<>(activeKeyOrder);
 
         if (resendEntireRange) {
-            assumedSize = getDataProviderSize();
+            assumedSize = dataProviderView.getDataProviderSize();
         }
 
         final Range previousActive = Range.withLength(activeStart,
@@ -273,8 +298,13 @@ public class DataCommunicator<T> {
         // XXX Explicitly refresh anything that is updated
         // XXX Any key already present in keyMapper should be removed from
         // passivatedByUpdate so that it won't be prematurely unregistered.
-        return fetchFromProvider(range.getStart(), range.length())
+        return dataProviderView
+                .fetchFromProvider(range.getStart(), range.length())
                 .map(keyMapper::key).collect(Collectors.toList());
+    }
+
+    public DataProviderView<T> getDataProviderView() {
+        return dataProviderView;
     }
 
     private JsonValue generateJson(T item) {
@@ -299,96 +329,4 @@ public class DataCommunicator<T> {
         return keyMapper.get(key);
     }
 
-    /**
-     * Get the object used for filtering in this data communicator.
-     *
-     * @return the filter object of this data communicator
-     * @since 8.0.6
-     */
-    protected Object getFilter() {
-        return filter;
-    }
-
-    /**
-     * Fetches a list of items from the DataProvider.
-     *
-     * @param offset
-     *            the starting index of the range
-     * @param limit
-     *            the max number of results
-     * @return the list of items in given range
-     *
-     * @since 8.1
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected Stream<T> fetchFromProvider(int offset, int limit) {
-        return getDataProvider().fetch(new Query(offset, limit, backEndSorting,
-                inMemorySorting, filter));
-    }
-
-    /**
-     * Gets the current data provider from this DataCommunicator.
-     *
-     * @return the data provider
-     */
-    public DataProvider<T, ?> getDataProvider() {
-        return dataProvider;
-    }
-
-    /**
-     * Sets the current data provider for this DataCommunicator.
-     * <p>
-     * The returned consumer can be used to set some other filter value that
-     * should be included in queries sent to the data provider. It is only valid
-     * until another data provider is set.
-     *
-     * @param dataProvider
-     *            the data provider to set, not <code>null</code>
-     * @param initialFilter
-     *            the initial filter value to use, or <code>null</code> to not
-     *            use any initial filter value
-     *
-     * @param <F>
-     *            the filter type
-     *
-     * @return a consumer that accepts a new filter value to use
-     */
-    public <F> SerializableConsumer<F> setDataProvider(
-            DataProvider<T, F> dataProvider, F initialFilter) {
-        Objects.requireNonNull(dataProvider, "data provider cannot be null");
-        filter = initialFilter;
-
-        // TODO: remove old data provider listener
-
-        reset();
-
-        this.dataProvider = dataProvider;
-
-        keyMapper.setIdentifierGetter(dataProvider::getId);
-
-        // TODO: add data provider listener if attached
-
-        return filter -> {
-            if (this.dataProvider != dataProvider) {
-                throw new IllegalStateException(
-                        "Filter slot is no longer valid after data provider has been changed");
-            }
-
-            if (!Objects.equals(this.filter, filter)) {
-                this.filter = filter;
-                reset();
-            }
-        };
-    }
-
-    /**
-     * Getter method for finding the size of DataProvider. Can be overridden by
-     * a subclass that uses a specific type of DataProvider and/or query.
-     *
-     * @return the size of data provider with current filter
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected int getDataProviderSize() {
-        return getDataProvider().size(new Query(getFilter()));
-    }
 }
