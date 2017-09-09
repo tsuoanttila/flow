@@ -30,5 +30,15 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface SerializableFunction<T, R>
         extends Function<T, R>, Serializable {
-    // Only method inherited from Function
+    /**
+     * Returns a function that always returns its input argument.
+     *
+     * @param <T>
+     *            the type of the input and output objects to the function
+     * @return a function that always returns its input argument
+     */
+    static <T> SerializableFunction<T, T> identity() {
+        return t -> t;
+    }
+
 }

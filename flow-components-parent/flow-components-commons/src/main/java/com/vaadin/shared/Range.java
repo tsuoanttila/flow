@@ -17,6 +17,7 @@
 package com.vaadin.shared;
 
 import java.io.Serializable;
+import java.util.stream.IntStream;
 
 /**
  * An immutable representation of a range, marked by start and end points.
@@ -435,5 +436,9 @@ public final class Range implements Serializable {
                 return Range.withLength(getStart(), 0);
             }
         }
+    }
+
+    public IntStream stream() {
+        return IntStream.range(getStart(), getEnd());
     }
 }
