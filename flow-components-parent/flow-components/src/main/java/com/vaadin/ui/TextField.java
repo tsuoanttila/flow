@@ -25,7 +25,7 @@ import com.vaadin.generated.vaadin.text.field.GeneratedVaadinTextField;
  * @author Vaadin Ltd
  */
 public class TextField extends GeneratedVaadinTextField<TextField>
-implements HasSize {
+        implements HasSize, HasValidation {
 
     /**
      * Constructs an empty {@code TextField}.
@@ -75,10 +75,9 @@ implements HasSize {
     }
 
     @Override
-    public TextField setValue(String value) {
+    public void setValue(String value) {
         if (!Objects.equals(value, getValue())) {
-            return super.setValue(value);
+            super.setValue(value);
         }
-        return this;
     }
 }

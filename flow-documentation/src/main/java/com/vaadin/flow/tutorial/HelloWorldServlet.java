@@ -18,20 +18,11 @@ package com.vaadin.flow.tutorial;
 import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.flow.tutorial.HelloWorldServlet.HelloWorldConfiguration;
 import com.vaadin.flow.tutorial.annotations.CodeFor;
-import com.vaadin.flow.router.RouterConfiguration;
-import com.vaadin.flow.router.RouterConfigurator;
 import com.vaadin.server.VaadinServlet;
 
 @CodeFor("tutorial-hello-world.asciidoc")
 @WebServlet(urlPatterns = "/*", name = "HelloWorldServlet")
-@VaadinServletConfiguration(routerConfigurator = HelloWorldConfiguration.class, productionMode = false)
+@VaadinServletConfiguration(productionMode = false)
 public class HelloWorldServlet extends VaadinServlet {
-    public static class HelloWorldConfiguration implements RouterConfigurator {
-        @Override
-        public void configure(RouterConfiguration configuration) {
-            configuration.setRoute("", HelloWorld.class);
-        }
-    }
 }

@@ -32,9 +32,11 @@ import com.vaadin.flow.nodefeature.LoadingIndicatorConfigurationMap;
 import com.vaadin.flow.nodefeature.PollConfigurationMap;
 import com.vaadin.flow.nodefeature.ReconnectDialogConfigurationMap;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.RouterInterface;
 import com.vaadin.flow.router.NavigationTrigger;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Router;
+import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.server.Command;
 import com.vaadin.server.ErrorEvent;
 import com.vaadin.server.ErrorHandlingCommand;
@@ -69,7 +71,7 @@ import com.vaadin.util.CurrentInstance;
  * @since 7.0
  */
 public class UI extends Component
-        implements Serializable, PollNotifier, HasComponents {
+        implements Serializable, PollNotifier, HasComponents, RouterLayout {
 
     /**
      * The id of this UI, used to find the server side instance of the UI form
@@ -90,7 +92,7 @@ public class UI extends Component
 
     private final Page page = new Page(this);
 
-    private Router router;
+    private RouterInterface router;
 
     /**
      * Creates a new empty UI.
@@ -183,7 +185,7 @@ public class UI extends Component
         init(request);
 
         // Use router if it's active
-        Router serviceRouter = getSession().getService().getRouter();
+        RouterInterface serviceRouter = getSession().getService().getRouter();
         if (serviceRouter.getConfiguration().isConfigured()) {
             router = serviceRouter;
             router.initializeUI(this, request);
@@ -697,7 +699,7 @@ public class UI extends Component
      * @return an optional router, or an empty {@code Optional} if this UI was
      *         initialized without a router
      */
-    public Optional<Router> getRouter() {
+    public Optional<RouterInterface> getRouter() {
         return Optional.ofNullable(router);
     }
 
@@ -714,14 +716,14 @@ public class UI extends Component
      * If the {@link Component} related to the runnable is not attached to the
      * document by the time the runnable is evaluated, the execution is
      * postponed to before the next response.
-     * 
+     *
      * @param component
      *            the Component relevant for the execution. Can not be
      *            <code>null</code>
-     * 
+     *
      * @param execution
      *            the Runnable to be executed. Can not be <code>null</code>
-     * 
+     *
      * @return a registration that can be used to cancel the execution of the
      *         runnable
      */

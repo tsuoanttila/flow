@@ -16,8 +16,8 @@
 package com.vaadin.flow.tutorial.router;
 
 import com.vaadin.flow.tutorial.annotations.CodeFor;
-import com.vaadin.flow.tutorial.routing.Routing.CompanyView;
-import com.vaadin.flow.tutorial.routing.Routing.HomeView;
+import com.vaadin.flow.tutorial.routing.RoutingRouterConfiguration.CompanyView;
+import com.vaadin.flow.tutorial.routing.RoutingRouterConfiguration.HomeView;
 import com.vaadin.flow.router.RouterConfiguration;
 import com.vaadin.flow.router.RouterConfigurator;
 import com.vaadin.ui.AngularTemplate;
