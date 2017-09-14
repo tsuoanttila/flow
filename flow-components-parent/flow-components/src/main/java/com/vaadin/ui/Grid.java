@@ -84,7 +84,7 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
         }
     };
 
-    private final Map<String, Function<T, JsonValue>> columnGenerators = new HashMap<>();
+    private final Map<String, Function<T, JsonValue>> itemProperties = new HashMap<>();
     private final DataCommunicator<T> dataCommunicator = new DataCommunicator<>(
             this::generateItemJson, arrayUpdater, getElement().getNode(),
             new DataProviderView<>());
@@ -115,12 +115,18 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
                 pageSize);
     }
 
+    public void addItemProperty(String name,
+            ValueProvider<T, JsonValue> valueProvider) {
+        itemProperties.put(name, valueProvider);
+        dataCommunicator.reset();
+    }
+
     public void addColumn(String header,
             ValueProvider<T, String> valueProvider) {
         int id = nextColumnId++;
         String columnKey = "col" + id;
-        columnGenerators.put(columnKey, valueProvider.andThen(Json::create));
-        dataCommunicator.reset();
+        addItemProperty(columnKey,
+                item -> Json.create(valueProvider.apply(item)));
 
         // Use innerHTML to set document fragment instead of DOM children
         Element headerTemplate = new Element("template")
@@ -144,7 +150,7 @@ public class Grid<T> extends Component implements HasDataProvider<T> {
         if (selectedItems.contains(item)) {
             json.put("selected", true);
         }
-        columnGenerators.forEach((columnKey, generator) -> json.put(columnKey,
+        itemProperties.forEach((columnKey, generator) -> json.put(columnKey,
                 generator.apply(item)));
         return json;
     }
