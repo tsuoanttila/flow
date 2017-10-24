@@ -130,8 +130,8 @@ public class ApplicationConnection {
         });
     
         client.getProfilingData = $entry(function() {
-            var smh = ap.@com.vaadin.client.ApplicationConnection::registry.@com.vaadin.client.Registry::getMessageHandler()();
-            var pd = [
+            let smh = ap.@com.vaadin.client.ApplicationConnection::registry.@com.vaadin.client.Registry::getMessageHandler()();
+            let pd = [
                 smh.@com.vaadin.client.communication.MessageHandler::lastProcessingTime,
                     smh.@com.vaadin.client.communication.MessageHandler::totalProcessingTime
                 ];
@@ -145,13 +145,18 @@ public class ApplicationConnection {
         });
         
         $wnd.vaadin.resolveUri = $entry(function(uriToResolve) {
-            var ur = ap.@com.vaadin.client.ApplicationConnection::registry.@com.vaadin.client.Registry::getURIResolver()();
+            let ur = ap.@com.vaadin.client.ApplicationConnection::registry.@com.vaadin.client.Registry::getURIResolver()();
             return ur.@com.vaadin.client.URIResolver::resolveVaadinUri(Ljava/lang/String;)(uriToResolve);
         });
         
         $wnd.vaadin.sendEventMessage = $entry(function(nodeId, eventType, eventData) {
-            var sc = ap.@com.vaadin.client.ApplicationConnection::registry.@com.vaadin.client.Registry::getServerConnector()();
+            let sc = ap.@com.vaadin.client.ApplicationConnection::registry.@com.vaadin.client.Registry::getServerConnector()();
             sc.@com.vaadin.client.communication.ServerConnector::sendEventMessage(ILjava/lang/String;Lelemental/json/JsonObject;)(nodeId,eventType,eventData);
+        });
+        
+        $wnd.vaadin.sendExistingElementAttachToServer = $entry(function(parentNodeId, requestedId, assignedId, tagName, index) {
+            let sc = ap.@com.vaadin.client.ApplicationConnection::registry.@com.vaadin.client.Registry::getServerConnector()();
+            sc.@com.vaadin.client.communication.ServerConnector::sendExistingElementAttachToServer(ILILILjava/lang/String;IL)(parentNodeId,requestedId,assignedId,tagName,index);
         });
     
         client.initializing = false;

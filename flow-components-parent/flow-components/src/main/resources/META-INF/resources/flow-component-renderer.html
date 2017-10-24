@@ -1,0 +1,27 @@
+<dom-module id="flow-component-renderer">
+
+  <template>
+    <slot></slot>
+  </template>
+
+  <script>
+    class FlowComponentRenderer extends Polymer.Element {
+
+      static get is() { return 'flow-component-renderer'; }
+
+      static get properties() {
+          return {
+            parentNodeId: Number,
+            componentNodeId: Number,
+            itemKey: String
+          };
+        }
+      
+      ready() {
+    	  super.ready();
+    	  vaadin.sendExistingElementAttachToServer(this.parentNodeId, -1, this.componentNodeId, FlowComponentRenderer.is(), 0);
+      }
+    }
+    window.customElements.define(FlowComponentRenderer.is, FlowComponentRenderer);
+  </script>
+</dom-module>

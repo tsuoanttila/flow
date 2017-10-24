@@ -147,6 +147,14 @@ public class GridView extends DemoView {
     }
     // end-source-example
 
+    private static class PersonComponent extends Div {
+
+        public void setPerson(Person person) {
+
+        }
+
+    }
+
     @Override
     void initView() {
         createBasicUsage();
@@ -320,13 +328,16 @@ public class GridView extends DemoView {
                 "<button on-click='handleUpdate'>Update</button><button on-click='handleRemove'>Remove</button>")
                 .withEventHandler("handleUpdate", person -> {
                     person.setName(person.getName() + " Updated");
-                    grid.getDataCommunicator().reset();
+                    grid.getDataProvider().refreshItem(person);
                 }).withEventHandler("handleRemove", person -> {
                     ListDataProvider<Person> dataProvider = (ListDataProvider<Person>) grid
                             .getDataCommunicator().getDataProvider();
                     dataProvider.getItems().remove(person);
                     grid.getDataCommunicator().reset();
                 }));
+
+        grid.addColumn("Components", new ComponentRenderer<>(
+                PersonComponent::new, PersonComponent::setPerson));
 
         grid.setSelectionMode(SelectionMode.NONE);
         // end-source-example

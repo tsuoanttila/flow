@@ -114,9 +114,7 @@ public class TemplateRenderer<SOURCE> implements Serializable {
      */
     public TemplateRenderer<SOURCE> withProperty(String property,
             ValueProvider<SOURCE, ?> provider) {
-        Objects.requireNonNull(property, "The property must not be null");
-        Objects.requireNonNull(provider, "The value provider must not be null");
-        valueProviders.put(property, provider);
+        putProperty(property, provider);
         return this;
     }
 
@@ -156,9 +154,7 @@ public class TemplateRenderer<SOURCE> implements Serializable {
      */
     public TemplateRenderer<SOURCE> withEventHandler(String handlerName,
             SerializableConsumer<SOURCE> handler) {
-        Objects.requireNonNull(handlerName, "The handlerName must not be null");
-        Objects.requireNonNull(handler, "The event handler must not be null");
-        eventHandlers.put(handlerName, handler);
+        putEventHandler(handlerName, handler);
         return this;
     }
 
@@ -174,6 +170,24 @@ public class TemplateRenderer<SOURCE> implements Serializable {
      */
     public String getTemplate() {
         return template;
+    }
+
+    protected void setTemplate(String template) {
+        this.template = template;
+    }
+
+    protected void putProperty(String property,
+            ValueProvider<SOURCE, ?> provider) {
+        Objects.requireNonNull(property, "The property must not be null");
+        Objects.requireNonNull(provider, "The value provider must not be null");
+        valueProviders.put(property, provider);
+    }
+
+    protected void putEventHandler(String handlerName,
+            SerializableConsumer<SOURCE> handler) {
+        Objects.requireNonNull(handlerName, "The handlerName must not be null");
+        Objects.requireNonNull(handler, "The event handler must not be null");
+        eventHandlers.put(handlerName, handler);
     }
 
     /**
