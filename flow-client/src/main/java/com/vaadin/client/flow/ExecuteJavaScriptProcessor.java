@@ -152,6 +152,9 @@ public class ExecuteJavaScriptProcessor {
           object.attachCustomElement = function(parent, tagName, serverSideId, path){
               @com.vaadin.client.ExecuteJavaScriptElementUtils::attachCustomElement(*)(object.getNode(parent), tagName, serverSideId, path);
           };
+          object.attachExistingElementByQuerySelector = function(parent, tagName, serverSideId, selector, onShadowRoot){
+              @com.vaadin.client.ExecuteJavaScriptElementUtils::attachExistingElementByQuerySelector(*)(object.getNode(parent), tagName, serverSideId, selector, onShadowRoot);
+          };
           return object;
     }-*/;
 }

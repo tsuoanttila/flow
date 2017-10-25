@@ -15,6 +15,7 @@
  */
 package com.vaadin.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.vaadin.client.flow.ExecuteJavaScriptProcessor;
 import com.vaadin.client.flow.StateNode;
@@ -149,7 +150,37 @@ public final class ExecuteJavaScriptElementUtils {
                     (Element) parent.getDomNode(), id);
 
             respondExistingElement(parent, tagName, serverSideId, id,
-                    existingElement);
+                    existingElement, true);
+        }
+    }
+
+    public static void attachExistingElementByQuerySelector(StateNode parent,
+            String tagName, int serverSideId, String selector,
+            boolean onShadowRoot) {
+        if (parent.getDomNode() == null) {
+            Reactive.addPostFlushListener(
+                    () -> Scheduler.get().scheduleDeferred(
+                            () -> attachExistingElementByQuerySelector(parent,
+                                    tagName, serverSideId, selector,
+                                    onShadowRoot)));
+        } else if (onShadowRoot && getDomRoot(parent.getDomNode()) == null) {
+            invokeWhenDefined(parent.getDomNode(),
+                    () -> attachExistingElementByQuerySelector(parent, tagName,
+                            serverSideId, selector, onShadowRoot));
+            return;
+        } else {
+            GWT.debugger();
+            Element existingElement;
+            if (onShadowRoot) {
+                existingElement = getDomElementByQuerySelector(
+                        getDomRoot(parent.getDomNode()), selector);
+            } else {
+                existingElement = getDomElementByQuerySelector(
+                        parent.getDomNode(), selector);
+            }
+
+            respondExistingElement(parent, tagName, serverSideId, selector,
+                    existingElement, onShadowRoot);
         }
     }
 
@@ -187,32 +218,48 @@ public final class ExecuteJavaScriptElementUtils {
                     + "', required tag '" + tagName + "'");
         }
         respondExistingElement(parent, tagName, serverSideId, null,
-                customElement);
+                customElement, true);
 
     }
 
     private static void respondExistingElement(StateNode parent, String tagName,
-            int serverSideId, String id, Element existingElement) {
+            int serverSideId, String id, Element existingElement,
+            boolean onShadownRoot) {
         if (existingElement != null && hasTag(existingElement, tagName)) {
-            NodeMap map = parent.getMap(NodeFeatures.SHADOW_ROOT_DATA);
-            StateNode shadowRootNode = (StateNode) map
-                    .getProperty(NodeProperties.SHADOW_ROOT).getValue();
-            NodeList list = shadowRootNode
-                    .getList(NodeFeatures.ELEMENT_CHILDREN);
             Integer existingId = null;
 
-            for (int i = 0; i < list.length(); i++) {
-                StateNode stateNode = (StateNode) list.get(i);
-                Node domNode = stateNode.getDomNode();
+            if (onShadownRoot) {
+                NodeMap map = parent.getMap(NodeFeatures.SHADOW_ROOT_DATA);
+                StateNode shadowRootNode = (StateNode) map
+                        .getProperty(NodeProperties.SHADOW_ROOT).getValue();
+                NodeList list = shadowRootNode
+                        .getList(NodeFeatures.ELEMENT_CHILDREN);
 
-                if (domNode.equals(existingElement)) {
-                    existingId = stateNode.getId();
-                    break;
+                for (int i = 0; i < list.length(); i++) {
+                    StateNode stateNode = (StateNode) list.get(i);
+                    Node domNode = stateNode.getDomNode();
+
+                    if (domNode.equals(existingElement)) {
+                        existingId = stateNode.getId();
+                        break;
+                    }
                 }
-            }
+                existingId = getExistingIdOrUpdate(shadowRootNode, serverSideId,
+                        existingElement, existingId);
+            } else {
+                NodeList list = parent.getList(NodeFeatures.ELEMENT_CHILDREN);
+                for (int i = 0; i < list.length(); i++) {
+                    StateNode stateNode = (StateNode) list.get(i);
+                    Node domNode = stateNode.getDomNode();
 
-            existingId = getExistingIdOrUpdate(shadowRootNode, serverSideId,
-                    existingElement, existingId);
+                    if (domNode.equals(existingElement)) {
+                        existingId = stateNode.getId();
+                        break;
+                    }
+                }
+                existingId = getExistingIdOrUpdate(parent, serverSideId,
+                        existingElement, existingId);
+            }
 
             // Return this as attach to parent which will delegate it to the
             // underlying shadowRoot as a virtual child.
@@ -265,6 +312,12 @@ public final class ExecuteJavaScriptElementUtils {
             String id)
     /*-{
         return shadowRootParent.$[id];
+    }-*/;
+
+    private static native Element getDomElementByQuerySelector(Node element,
+            String selector)
+    /*-{
+        return element.querySelector(selector);
     }-*/;
 
     private static native Element getDomRoot(Node templateElement)

@@ -11,15 +11,35 @@
 
       static get properties() {
           return {
-            parentNodeId: Number,
-            componentNodeId: Number,
-            itemKey: String
+            parentnodeid: {
+            	type: Number,
+            	observer: '_onAttributesChanged',
+            	reflectToAttribute: true
+            },
+            componentnodeid: {
+            	type: Number,
+            	observer: '_onAttributesChanged',
+            	reflectToAttribute: true
+            },
+            key: {
+            	type: String,
+            	observer: '_onAttributesChanged',
+            	reflectToAttribute: true
+            }
           };
         }
       
       ready() {
     	  super.ready();
-    	  vaadin.sendExistingElementAttachToServer(this.parentNodeId, -1, this.componentNodeId, FlowComponentRenderer.is(), 0);
+    	  //vaadin.sendEventMessage(this.parentnodeid, 'componentRendererReady', {key: this.key, id: this.id});
+    	  //vaadin.sendExistingElementAttachToServer(this.parentNodeId, -1, this.componentNodeId, 'flow-component-renderer', 0);
+      }
+      
+      _onAttributesChanged() {
+    	  if (this.key && this.parentnodeid) {
+    		//vaadin.sendExistingElementAttachToServer(this.parentnodeid, -1, this.componentnodeid, 'flow-component-renderer', 0);
+    	  	vaadin.sendEventMessage(this.parentnodeid, 'componentRendererReady', {key: this.key, id: this.id});
+    	  }
       }
     }
     window.customElements.define(FlowComponentRenderer.is, FlowComponentRenderer);

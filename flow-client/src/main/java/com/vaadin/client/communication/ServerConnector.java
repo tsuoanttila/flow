@@ -15,6 +15,7 @@
  */
 package com.vaadin.client.communication;
 
+import com.vaadin.client.Console;
 import com.vaadin.client.Registry;
 import com.vaadin.client.flow.StateNode;
 import com.vaadin.client.flow.util.ClientJsonCodec;
@@ -99,6 +100,8 @@ public class ServerConnector {
      */
     public void sendEventMessage(int nodeId, String eventType,
             JsonObject eventData) {
+        Console.log("sendEventMessage: nodeId: " + nodeId + " eventData: "
+                + eventData);
         JsonObject message = Json.createObject();
         message.put(JsonConstants.RPC_TYPE, JsonConstants.RPC_TYPE_EVENT);
         message.put(JsonConstants.RPC_NODE, nodeId);

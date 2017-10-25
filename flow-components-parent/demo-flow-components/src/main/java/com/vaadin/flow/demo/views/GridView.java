@@ -34,6 +34,7 @@ import com.vaadin.ui.grid.GridSelectionModel;
 import com.vaadin.ui.html.Div;
 import com.vaadin.ui.html.Label;
 import com.vaadin.ui.layout.HorizontalLayout;
+import com.vaadin.ui.renderers.ComponentRenderer;
 import com.vaadin.ui.renderers.TemplateRenderer;
 
 /**
@@ -149,21 +150,25 @@ public class GridView extends DemoView {
 
     private static class PersonComponent extends Div {
 
-        public void setPerson(Person person) {
+        public PersonComponent() {
+            setText("Person");
+        }
 
+        public void setPerson(Person person) {
+            setText("Person set: " + person);
         }
 
     }
 
     @Override
     void initView() {
-        createBasicUsage();
-        createCallBackDataProvider();
-        createSingleSelect();
-        createMultiSelect();
-        createNoneSelect();
+        // createBasicUsage();
+        // createCallBackDataProvider();
+        // createSingleSelect();
+        // createMultiSelect();
+        // createNoneSelect();
         createColumnTemplate();
-        createResizable();
+        // createResizable();
 
         addCard("Grid example model",
                 new Label("These objects are used in the examples above"));

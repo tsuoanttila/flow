@@ -93,7 +93,9 @@ public class AttachTemplateChildRpcHandler
                 feature.unregister(elementNode);
                 Element element = Element.get(elementNode);
 
-                Optional<ShadowRoot> shadowRoot = parent.getShadowRoot();
+                Optional<ShadowRoot> shadowRoot = parent == null
+                        ? Optional.empty()
+                        : parent.getShadowRoot();
                 if (shadowRoot.isPresent()) {
                     shadowRoot.get().insertVirtualChild(element);
                 }

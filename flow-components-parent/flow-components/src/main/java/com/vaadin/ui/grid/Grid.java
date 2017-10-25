@@ -61,6 +61,7 @@ import com.vaadin.ui.common.JavaScript;
 import com.vaadin.ui.event.ComponentEvent;
 import com.vaadin.ui.event.ComponentEventListener;
 import com.vaadin.ui.event.Synchronize;
+import com.vaadin.ui.renderers.ComponentRenderer;
 import com.vaadin.ui.renderers.TemplateRenderer;
 import com.vaadin.util.JsonSerializer;
 
@@ -81,6 +82,7 @@ import elemental.json.JsonValue;
 @HtmlImport("frontend://bower_components/vaadin-grid/vaadin-grid.html")
 @HtmlImport("frontend://bower_components/vaadin-grid/vaadin-grid-column.html")
 @HtmlImport("frontend://bower_components/vaadin-checkbox/vaadin-checkbox.html")
+@HtmlImport("context://flow-component-renderer.html")
 @JavaScript("context://gridConnector.js")
 public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
 
@@ -331,32 +333,85 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
                     .setAttribute("class", "header")
                     .setProperty("innerHTML", HtmlUtils.escape(header));
 
-            Element contentTemplate = new Element("template")
-                    .setProperty("innerHTML", renderer.getTemplate());
+            if (renderer instanceof ComponentRenderer) {
+                ComponentRenderer<? extends Component, T> componentRenderer = (ComponentRenderer<? extends Component, T>) renderer;
+                getElement().getNode().runWhenAttached(ui -> {
+                    componentRenderer.setTemplateAttribute("parentNodeId",
+                            String.valueOf(getElement().getNode().getId()));
+                    componentRenderer.setTemplateAttribute("parentId",
+                            columnId);
+                    componentRenderer.setTemplateAttribute("key",
+                            "[[item.key]]");
+                    componentRenderer.setTemplateAttribute("id",
+                            columnId + "_[[item.key]]");
+                    componentRenderer.setTemplateAttribute("componentnodeid",
+                            "[[index]]");
 
-            getElement().setAttribute("id", columnId)
-                    .appendChild(headerTemplate, contentTemplate);
+                    Element contentTemplate = new Element("template")
+                            .setProperty("innerHTML", renderer.getTemplate());
 
-            Map<String, SerializableConsumer<T>> eventConsumers = renderer
-                    .getEventHandlers();
+                    getElement().setAttribute("id", columnId)
+                            .appendChild(headerTemplate, contentTemplate);
+                });
+                getElement().addEventListener("componentRendererReady",
+                        event -> {
+                            String itemKey = event.getEventData()
+                                    .getString("key");
+                            String id = event.getEventData().getString("id");
 
-            if (!eventConsumers.isEmpty()) {
-                /*
-                 * This code allows the template to use Polymer specific syntax
-                 * for events, such as on-click (instead of the native onclick).
-                 * The principle is: we set a new function inside the column,
-                 * and the function is called by the rendered template. For that
-                 * to work, the template element must have the "__dataHost"
-                 * property set with the column element.
-                 */
-                getElement().getNode().runWhenAttached(
-                        ui -> processTemplateRendererEventConsumers(ui,
-                                getElement(), eventConsumers));
+                            Element element = new Element(
+                                    "flow-component-renderer");
+                            int nodeId = UI.getCurrent().getInternals()
+                                    .getStateTree().register(element.getNode());
 
-                contentTemplate.getNode()
-                        .runWhenAttached(ui -> ui.getPage().executeJavaScript(
-                                "$0.__dataHost = $1;", contentTemplate,
-                                getElement()));
+                            grid.getElement().getShadowRoot().orElseGet(
+                                    () -> grid.getElement().attachShadow())
+                                    .insertVirtualChild(element);
+
+                            UI.getCurrent().getPage().executeJavaScript(
+                                    "this.attachExistingElementByQuerySelector($0, $1, $2, $3, $4);",
+                                    grid.getElement(),
+                                    "flow-component-renderer", nodeId,
+                                    "[key=\"" + itemKey + "\"]", false);
+
+                            element.getNode().runWhenAttached(ui -> {
+                                T item = getGrid().getDataCommunicator()
+                                        .getKeyMapper().get(itemKey);
+                                Component component = componentRenderer
+                                        .createComponent(item);
+                                element.appendChild(component.getElement());
+                                System.err.println("Attached!!!! " + id);
+                            });
+                        });
+            } else {
+                Element contentTemplate = new Element("template")
+                        .setProperty("innerHTML", renderer.getTemplate());
+
+                getElement().setAttribute("id", columnId)
+                        .appendChild(headerTemplate, contentTemplate);
+
+                Map<String, SerializableConsumer<T>> eventConsumers = renderer
+                        .getEventHandlers();
+
+                if (!eventConsumers.isEmpty()) {
+                    /*
+                     * This code allows the template to use Polymer specific
+                     * syntax for events, such as on-click (instead of the
+                     * native onclick). The principle is: we set a new function
+                     * inside the column, and the function is called by the
+                     * rendered template. For that to work, the template element
+                     * must have the "__dataHost" property set with the column
+                     * element.
+                     */
+                    getElement().getNode().runWhenAttached(
+                            ui -> processTemplateRendererEventConsumers(ui,
+                                    getElement(), eventConsumers));
+
+                    contentTemplate.getNode()
+                            .runWhenAttached(ui -> ui.getPage()
+                                    .executeJavaScript("$0.__dataHost = $1;",
+                                            contentTemplate, getElement()));
+                }
             }
         }
 
@@ -409,7 +464,6 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
             return getElement().getProperty("flexGrow", 1);
         }
 
-
         /**
          * When set to {@code true}, the column is user-resizable. By default
          * this is set to {@code false}.
@@ -459,11 +513,10 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
 
             // vaadin.sendEventMessage is an exported function at the client
             // side
-            ui.getPage()
-                    .executeJavaScript(String.format(
-                            "$0.%s = function(e) {vaadin.sendEventMessage(%d, '%s', {key: e.model.__data.item.key})}",
-                            handlerName, colElement.getNode().getId(),
-                            handlerName), colElement);
+            ui.getPage().executeJavaScript(String.format(
+                    "$0.%s = function(e) {vaadin.sendEventMessage(%d, '%s', {key: e.model.__data.item.key})}",
+                    handlerName, colElement.getNode().getId(), handlerName),
+                    colElement);
 
             colElement.addEventListener(handlerName,
                     event -> processEventFromTemplateRenderer(event,
@@ -558,7 +611,7 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
         String columnKey = getColumnKey(false);
         return addColumn(header,
                 TemplateRenderer.<T> of("[[item." + columnKey + "]]")
-                .withProperty(columnKey, valueProvider));
+                        .withProperty(columnKey, valueProvider));
     }
 
     /**
@@ -574,8 +627,7 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
      *
      * @see TemplateRenderer#of(String)
      */
-    public Column<T> addColumn(String header,
-            TemplateRenderer<T> renderer) {
+    public Column<T> addColumn(String header, TemplateRenderer<T> renderer) {
         String columnKey = getColumnKey(true);
 
         renderer.getValueProviders().forEach((key, provider) -> {
@@ -583,7 +635,7 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
         });
 
         getDataCommunicator().reset();
-        
+
         Column<T> column = new Column<>(this, columnKey, header, renderer);
 
         getElement().getNode().runWhenAttached(
