@@ -45,8 +45,11 @@ import com.vaadin.data.selection.SelectionModel.Single;
 import com.vaadin.data.selection.SingleSelect;
 import com.vaadin.data.selection.SingleSelectionEvent;
 import com.vaadin.data.selection.SingleSelectionListener;
+import com.vaadin.flow.StateNode;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.dom.impl.BasicElementStateProvider;
+import com.vaadin.flow.nodefeature.AttachTemplateChildFeature;
 import com.vaadin.flow.util.HtmlUtils;
 import com.vaadin.flow.util.JsonUtils;
 import com.vaadin.function.SerializableConsumer;
@@ -352,6 +355,7 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
 
                     getElement().setAttribute("id", columnId)
                             .appendChild(headerTemplate, contentTemplate);
+
                 });
                 getElement().addEventListener("componentRendererReady",
                         event -> {
@@ -359,14 +363,18 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
                                     .getString("key");
                             String id = event.getEventData().getString("id");
 
-                            Element element = new Element(
-                                    "flow-component-renderer");
+                            StateNode proposedNode = BasicElementStateProvider
+                                    .createStateNode("flow-component-renderer");
+                            Element element = Element.get(proposedNode);
                             int nodeId = UI.getCurrent().getInternals()
                                     .getStateTree().register(element.getNode());
+                            grid.getElement().getNode()
+                                    .getFeature(
+                                            AttachTemplateChildFeature.class)
+                                    .registerParent(grid.getElement(),
+                                            proposedNode);
 
-                            grid.getElement().getShadowRoot().orElseGet(
-                                    () -> grid.getElement().attachShadow())
-                                    .insertVirtualChild(element);
+                            UI.getCurrent().getElement().appendChild(element);
 
                             UI.getCurrent().getPage().executeJavaScript(
                                     "this.attachExistingElementByQuerySelector($0, $1, $2, $3, $4);",
@@ -375,12 +383,15 @@ public class Grid<T> extends AbstractListing<T> implements HasDataProvider<T> {
                                     "[key=\"" + itemKey + "\"]", false);
 
                             element.getNode().runWhenAttached(ui -> {
+                                element.getNode().markAsDirty();
                                 T item = getGrid().getDataCommunicator()
                                         .getKeyMapper().get(itemKey);
                                 Component component = componentRenderer
                                         .createComponent(item);
                                 element.appendChild(component.getElement());
-                                System.err.println("Attached!!!! " + id);
+                                element.setAttribute("testing", "yay");
+                                System.err.println("Attached!!!! " + nodeId
+                                        + " " + proposedNode);
                             });
                         });
             } else {

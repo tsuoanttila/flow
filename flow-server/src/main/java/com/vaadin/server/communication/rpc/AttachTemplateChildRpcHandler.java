@@ -88,6 +88,8 @@ public class AttachTemplateChildRpcHandler
 
         } else {
             StateNode elementNode = tree.getNodeById(assignedId);
+            System.err.println(
+                    "tree.getNodeById " + assignedId + " - " + elementNode);
 
             if (requestedId == assignedId) {
                 feature.unregister(elementNode);

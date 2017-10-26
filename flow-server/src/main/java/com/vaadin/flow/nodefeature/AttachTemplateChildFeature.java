@@ -62,6 +62,10 @@ public class AttachTemplateChildFeature extends ServerSideFeature {
         child.setParent(getNode());
     }
 
+    public void registerParent(Element parent, StateNode child) {
+        parentNodes.put(child, parent);
+    }
+
     /**
      * Gets parent {@link Node} of the registered {@code node}.
      * 
