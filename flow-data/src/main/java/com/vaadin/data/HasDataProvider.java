@@ -44,6 +44,13 @@ public interface HasDataProvider<T> extends HasItems<T> {
      */
     void setDataProvider(DataProvider<T, ?> dataProvider);
 
+    /**
+     * Gets the source of data items used by this listing.
+     *
+     * @return the data provider, not <code>null</code>
+     */
+    public DataProvider<T, ?> getDataProvider();
+
     @Override
     default void setItems(Collection<T> items) {
         setDataProvider(DataProvider.ofCollection(items));

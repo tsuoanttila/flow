@@ -4,6 +4,7 @@ window.gridConnector = {
     const pageCallbacks = {};
     const cache = {};
     let lastRequestedRange = [0, 0];
+    let lastRequestedParentKey = null;
 
     const validSelectionModes = ['SINGLE', 'NONE', 'MULTI'];
     let selectedKeys = {};
@@ -74,14 +75,20 @@ window.gridConnector = {
       // what grid asked for
       let firstNeededPage = Math.min(page, grid._getPageForIndex(grid._virtualStart));
       let lastNeededPage = Math.max(page, grid._getPageForIndex(grid._virtualEnd));
-
+      
       let first = Math.max(0,  firstNeededPage - extraPageBuffer);
       let last = Math.min(lastNeededPage + extraPageBuffer, Math.max(0, Math.floor(grid.size / grid.pageSize) + 1));
+      let parentKey = params.parentItem ? params.parentItem.key : null;
 
-      if (lastRequestedRange[0] != first || lastRequestedRange[1] != last) {
+      if (lastRequestedRange[0] != first || lastRequestedRange[1] != last || parentKey != lastRequestedParentKey) {
         lastRequestedRange = [first, last];
+        lastRequestedParentKey = parentKey;
         let count = 1 + last - first;
-        grid.$server.setRequestedRange(first * grid.pageSize, count * grid.pageSize);
+        if (parentKey) {
+          grid.$server.setRequestedRangeAndParentKey(first * grid.pageSize, count * grid.pageSize, parentKey);
+        } else {
+          grid.$server.setRequestedRange(first * grid.pageSize, count * grid.pageSize);
+        }
       }
     }
 

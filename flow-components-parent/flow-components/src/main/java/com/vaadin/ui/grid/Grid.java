@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 import com.vaadin.data.AbstractListing;
 import com.vaadin.data.Binder;
 import com.vaadin.data.HasDataProvider;
-import com.vaadin.data.provider.ArrayUpdater;
 import com.vaadin.data.provider.ArrayUpdater.Update;
 import com.vaadin.data.provider.DataChangeEvent;
 import com.vaadin.data.provider.DataChangeEvent.DataRefreshEvent;
@@ -95,10 +94,10 @@ import elemental.json.JsonValue;
 public class Grid<T> extends AbstractListing<T>
         implements HasDataProvider<T>, HasStyle, HasSize, Focusable<Grid<T>> {
 
-    private final class UpdateQueue implements Update {
+    protected final class UpdateQueue implements Update {
         private List<Runnable> queue = new ArrayList<>();
 
-        private UpdateQueue(int size) {
+        protected UpdateQueue(int size) {
             enqueue("$connector.updateSize", size);
         }
 
@@ -315,8 +314,8 @@ public class Grid<T> extends AbstractListing<T>
                     .setAttribute("class", "header")
                     .setProperty("innerHTML", HtmlUtils.escape(header));
 
-            Element contentTemplate = new Element("template")
-                    .setProperty("innerHTML", renderer.getTemplate());
+            Element contentTemplate = new Element("template").setProperty(
+                    "innerHTML", grid.getCellTemplate(renderer, this));
 
             getElement().setAttribute("id", columnId)
                     .appendChild(headerTemplate, contentTemplate);
@@ -463,7 +462,7 @@ public class Grid<T> extends AbstractListing<T>
      * @param <T>
      *            the grid bean type
      */
-    private class GridDataGenerator<T> implements DataGenerator<T> {
+    protected class GridDataGenerator<T> implements DataGenerator<T> {
 
         private final Set<DataGenerator<T>> dataGenerators = new HashSet<>();
 
@@ -590,13 +589,7 @@ public class Grid<T> extends AbstractListing<T>
         }
     }
 
-    private final ArrayUpdater arrayUpdater = UpdateQueue::new;
-
-    private final GridDataGenerator<T> gridDataGenerator = new GridDataGenerator<>();
-    private final DataCommunicator<T> dataCommunicator = new DataCommunicator<>(
-            gridDataGenerator, arrayUpdater,
-            data -> getElement().callFunction("$connector.updateData", data),
-            getElement().getNode());
+    protected DataCommunicator<T> dataCommunicator;
 
     private int nextColumnId = 0;
 
@@ -604,7 +597,7 @@ public class Grid<T> extends AbstractListing<T>
 
     private GridSelectionModel<T> selectionModel;
 
-    private final DetailsManager<T> detailsManager = new DetailsManager<>(this);
+    private DetailsManager<T> detailsManager;
     private Element detailsTemplate;
     private Map<String, RendereredComponent<T>> renderedDetailComponents;
 
@@ -629,6 +622,19 @@ public class Grid<T> extends AbstractListing<T>
      *            the page size. Must be greater than zero.
      */
     public Grid(int pageSize) {
+        dataCommunicator = new DataCommunicator<>(new GridDataGenerator<>(),
+                UpdateQueue::new, data -> getElement()
+                        .callFunction("$connector.updateData", data),
+                getElement().getNode());
+        initialSetup(pageSize);
+    }
+
+    protected Grid(DataCommunicator<T> dataCommunicator) {
+        this.dataCommunicator = dataCommunicator;
+    }
+
+    protected void initialSetup(int pageSize) {
+        detailsManager = new DetailsManager<>(this);
         setPageSize(pageSize);
         setSelectionModel(SelectionMode.SINGLE.createModel(this),
                 SelectionMode.SINGLE);
@@ -702,6 +708,7 @@ public class Grid<T> extends AbstractListing<T>
      *
      * @return the data provider of this grid, not {@code null}
      */
+    @Override
     public DataProvider<T, ?> getDataProvider() {
         return getDataCommunicator().getDataProvider();
     }
@@ -1142,6 +1149,11 @@ public class Grid<T> extends AbstractListing<T>
         getDataCommunicator().setRequestedRange(start, length);
     }
 
+    protected String getCellTemplate(TemplateRenderer<T> renderer,
+            Column<T> column) {
+        return renderer.getTemplate();
+    }
+
     @ClientDelegate
     private void setDetailsVisible(String key) {
         if (key == null) {
@@ -1326,7 +1338,7 @@ public class Grid<T> extends AbstractListing<T>
                 new RendereredComponent<>(component, componentRenderer));
     }
 
-    private GridDataGenerator<T> getDataGenerator() {
-        return gridDataGenerator;
+    protected GridDataGenerator<T> getDataGenerator() {
+        return (GridDataGenerator<T>) dataCommunicator.getDataGenerator();
     }
 }

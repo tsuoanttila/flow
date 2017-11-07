@@ -106,8 +106,7 @@ public class DataCommunicator<T> {
      */
     public DataCommunicator(DataGenerator<T> dataGenerator,
             ArrayUpdater arrayUpdater,
-            SerializableConsumer<JsonArray> dataUpdater,
-            StateNode stateNode) {
+            SerializableConsumer<JsonArray> dataUpdater, StateNode stateNode) {
         this.dataGenerator = dataGenerator;
         this.arrayUpdater = arrayUpdater;
         this.dataUpdater = dataUpdater;
@@ -236,6 +235,10 @@ public class DataCommunicator<T> {
      */
     public DataKeyMapper<T> getKeyMapper() {
         return keyMapper;
+    }
+
+    public DataGenerator<T> getDataGenerator() {
+        return dataGenerator;
     }
 
     /**
@@ -492,16 +495,15 @@ public class DataCommunicator<T> {
 
         // XXX Explicitly refresh anything that is updated
         List<String> activeKeys = new ArrayList<>(range.length());
-        fetchFromProvider(range.getStart(), range.length())
-                .forEach(bean -> {
-                    boolean mapperHasKey = keyMapper.has(bean);
-                    String key = keyMapper.key(bean);
-                    if (mapperHasKey) {
-                        passivatedByUpdate.values().stream()
-                                .forEach(set -> set.remove(key));
-                    }
-                    activeKeys.add(key);
-                });
+        fetchFromProvider(range.getStart(), range.length()).forEach(bean -> {
+            boolean mapperHasKey = keyMapper.has(bean);
+            String key = keyMapper.key(bean);
+            if (mapperHasKey) {
+                passivatedByUpdate.values().stream()
+                        .forEach(set -> set.remove(key));
+            }
+            activeKeys.add(key);
+        });
         return activeKeys;
     }
 
