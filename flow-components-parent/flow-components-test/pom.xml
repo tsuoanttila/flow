@@ -37,6 +37,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>github-com-polymerelements-iron-list</artifactId>
+            <version>2.0.10</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,7 +150,6 @@
                         <version>${jetty.version}</version>
                         <configuration>
                             <webAppConfig>
-                                <webInfIncludeJarPattern>^$</webInfIncludeJarPattern>
                                 <!-- Configure all project META-INF/resources
                                     directories for Jetty as resource folders as Jetty inside Eclipse is run
                                     with "Resolve workspace artifacts" and this does not create any JARs. Jetty
